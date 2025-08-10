@@ -1,0 +1,183 @@
+body {
+    background-color: #0d1117;
+    color: #c9d1d9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navbar */
+
+.nav-link:hover {
+    color: #ff0000 !important;
+    cursor: pointer;
+}
+
+.btn-outline-success:hover {
+    background-color: #ff0000 !important;
+    color: #0b0f14 !important;
+    box-shadow: 0 0 12px #ff0000 !important;
+    transform: scale(1.05);
+}
+
+.btn-success:hover {
+    background-color: #ff0000  !important;
+    box-shadow: 0 0 15px #ff0000  !important;
+    transform: scale(1.05);
+}
+
+/* main */
+
+a {
+    transition: color 0.3s ease;
+}
+
+a:hover,
+a:focus {
+    color: #ff0000;
+    text-decoration: none;
+}
+
+.navbar-dark .navbar-brand,
+.navbar-dark .nav-link {
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #ff0000 ;
+}
+
+.navbar-dark .nav-link.active {
+    border-bottom: 2px solid #ff0000;
+    padding-bottom: 0.25rem;
+}
+
+.btn-success {
+    background-color: #ff0000;
+    border: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.btn-success:hover {
+    background-color: #ff0000 ;
+}
+
+.btn-outline-success {
+    border-color: #ff0000;
+    color: #ff0000;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-success:hover {
+    background-color: #ff0000 ;
+    color: #0d1117;
+}
+
+input.form-control {
+    background-color: #161b22;
+    border: 1.5px solid #ff0000;
+    color: #c9d1d9;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: border-color 0.3s ease;
+}
+
+input.form-control:focus {
+    background-color: #0d1117;
+    border-color: #ff0000 ;
+    color: #ff0000;
+    box-shadow: none;
+}
+
+section {
+    padding-bottom: 3rem;
+}
+
+h2 {
+    color: #ff0000 ;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #ff0000;
+    padding-bottom: 0.5rem;
+    max-width: fit-content;
+}
+
+/* Cards */
+.card {
+    background-color: #161b22;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px #ff0000 (57, 255, 20, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px #ff0000 (57, 255, 20, 0.4);
+}
+
+.card-title {
+    color: #ff0000;
+    font-weight: 700;
+}
+
+.card-text {
+    color: #a1a9b8;
+}
+
+/* Featured Anime */
+.featured-section {
+    background: linear-gradient(135deg, #0d1117 0%, #16222a 100%);
+    border-radius: 1rem;
+    box-shadow: 0 6px 18px rgba(255, 0, 0, 0.5);
+    padding: 2rem;
+    margin-bottom: 4rem;
+}
+
+.featured-section img {
+    border-radius: 1rem;
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.6);
+    transition: transform 0.3s ease;
+}
+
+.featured-section img:hover {
+    transform: scale(1.05);
+}
+
+.featured-section h3 {
+    font-weight: 800;
+    color: #ff0000 ;
+    margin-bottom: 1rem;
+}
+
+/* Tags */
+.badge {
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background-color 0.3s ease;
+}
+
+.badge:hover {
+    background-color: #ff0000;
+    cursor: pointer;
+}
+
+/* Footer */
+footer {
+    background-color: #0d1117;
+    border-top: 2px solid #ff0000;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+footer a {
+    color: #ff0000;
+    font-weight: 600;
+}
+
+footer a:hover {
+    color: #ff0000;
+}
+
+.social-icons {
+    color: #ff0000;
+}
