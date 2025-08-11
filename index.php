@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Anime Blog</title>
+    <title>Silent Evidence</title>
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
@@ -27,7 +27,7 @@
 
         <!-- Featured Anime of the Week -->
         <section class="container my-5">
-            <h2 class="mb-4 text-center" style="color:#ff0000; text-transform: uppercase; letter-spacing: 2px;">
+            <h2 class="mb-3 text-center" style="color:#ff0000; text-transform: uppercase; letter-spacing: 2px;">
                 Top 10 Anime & Manga
             </h2>
 
@@ -50,7 +50,7 @@
                     <!-- Each item with anime image + title + short desc -->
                     <div class="carousel-item active">
                         <img src="https://placehold.co/900x400?text=Attack+on+Titan" class="d-block w-100 rounded" alt="Attack on Titan" />
-                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 15px #ff0000;">
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 80px #ff0000;">
                             <h5 style="color:#ff0000;">Attack on Titan</h5>
                             <p>Epic dark fantasy with giant Titans and brutal battles.</p>
                         </div>
@@ -58,7 +58,7 @@
 
                     <div class="carousel-item">
                         <img src="https://placehold.co/900x400?text=My+Hero+Academia" class="d-block w-100 rounded" alt="My Hero Academia" />
-                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 15px #ff0000;">
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 80px #ff0000;">
                             <h5 style="color:#ff0000;">My Hero Academia</h5>
                             <p>Superhero action with heartfelt character development.</p>
                         </div>
@@ -66,7 +66,7 @@
 
                     <div class="carousel-item">
                         <img src="https://placehold.co/900x400?text=Demon+Slayer" class="d-block w-100 rounded" alt="Demon Slayer" />
-                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 15px #ff0000;">
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 80px #ff0000;">
                             <h5 style="color:#ff0000;">Demon Slayer: Kimetsu no Yaiba</h5>
                             <p>Stunning animation and emotional storytelling.</p>
                         </div>
@@ -76,7 +76,7 @@
 
                     <div class="carousel-item">
                         <img src="https://placehold.co/900x400?text=Naruto" class="d-block w-100 rounded" alt="Naruto" />
-                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 15px #ff0000;">
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 80px #ff0000;">
                             <h5 style="color:#ff0000;">Naruto</h5>
                             <p>Classic ninja tale with a huge worldwide fanbase.</p>
                         </div>
@@ -84,7 +84,7 @@
 
                     <div class="carousel-item">
                         <img src="https://placehold.co/900x400?text=One+Piece" class="d-block w-100 rounded" alt="One Piece" />
-                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 15px #ff0000;">
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 80px #ff0000;">
                             <h5 style="color:#ff0000;">One Piece</h5>
                             <p>Epic pirate adventure with crazy world-building.</p>
                         </div>
@@ -92,7 +92,7 @@
 
                     <div class="carousel-item">
                         <img src="https://placehold.co/900x400?text=Fullmetal+Alchemist" class="d-block w-100 rounded" alt="Fullmetal Alchemist" />
-                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 15px #ff0000;">
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 80px #ff0000;">
                             <h5 style="color:#ff0000;">Fullmetal Alchemist: Brotherhood</h5>
                             <p>Deep story with alchemy and strong themes.</p>
                         </div>
@@ -100,7 +100,7 @@
 
                     <div class="carousel-item">
                         <img src="https://placehold.co/900x400?text=Death+Note" class="d-block w-100 rounded" alt="Death Note" />
-                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 15px #ff0000;">
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 80px #ff0000;">
                             <h5 style="color:#ff0000;">Death Note</h5>
                             <p>Thrilling psychological cat-and-mouse game.</p>
                         </div>
@@ -108,7 +108,7 @@
 
                     <div class="carousel-item">
                         <img src="https://placehold.co/900x400?text=Tokyo+Ghoul" class="d-block w-100 rounded" alt="Tokyo Ghoul" />
-                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 15px #ff0000;">
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 80px #ff0000;">
                             <h5 style="color:#ff0000;">Tokyo Ghoul</h5>
                             <p>Dark fantasy with a gritty atmosphere.</p>
                         </div>
@@ -124,7 +124,7 @@
 
                     <div class="carousel-item">
                         <img src="https://placehold.co/900x400?text=One+Punch+Man" class="d-block w-100 rounded" alt="One Punch Man" />
-                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 15px #ff0000;">
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3" style="box-shadow: 0 0 80px #ff0000;">
                             <h5 style="color:#ff0000;">One Punch Man</h5>
                             <p>Action comedy with a hilarious twist.</p>
                         </div>

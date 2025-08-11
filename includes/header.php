@@ -2,8 +2,8 @@
  <header>
    <nav class="navbar navbar-expand-lg shadow-sm py-3" style="background: linear-gradient(90deg, #0b0f14, #16222a);">
      <div class="container">
-       <a class="navbar-brand fs-3 fw-bold" href="#" style="color: #ff0000; text-shadow: 0 0 6px #ff0000;">
-         AnimeBlog
+       <a class="navbar-brand fs-3 fw-bold" href="#" style="color: #ff0000; text-shadow: 0 0 60px #ff0000;">
+         Silent Evidence
        </a>
        <button class="navbar-toggler border-success" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
          aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation" style="border-width: 2px;">
