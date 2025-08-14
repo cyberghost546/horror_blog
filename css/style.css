@@ -8,19 +8,28 @@ body {
 
 .nav-link:hover {
     color: #ff0000 !important;
+    border-radius: 25px;
+    box-shadow: 0 0 20px #ff0000 !important;
+    cursor: pointer;
+}
+
+.btn:hover{
+    color: #311010 !important;
+    border-radius: 25px;
+    box-shadow: 0 0 20px #ff0000 !important;
     cursor: pointer;
 }
 
 .btn-outline-success:hover {
     background-color: #ff0000 !important;
-    color: #0b0f14 !important;
-    box-shadow: 0 0 12px #ff0000 !important;
+    color: #421919 !important;
+    box-shadow: 0 0 20px #ff0000 !important;
     transform: scale(1.05);
 }
 
 .btn-success:hover {
     background-color: #ff0000  !important;
-    box-shadow: 0 0 15px #ff0000  !important;
+    box-shadow: 0 0 20px #ff0000  !important;
     transform: scale(1.05);
 }
 
@@ -34,6 +43,7 @@ a:hover,
 a:focus {
     color: #ff0000;
     text-decoration: none;
+    box-shadow: 0 0 20px #ff0000;
 }
 
 .navbar-dark .navbar-brand,
