@@ -30,7 +30,7 @@
 
     <!-- Featured Horror Stories -->
     <section class="container my-5">
-      <h2 class="mb-3 text-center" style="letter-spacing: 2px;">
+      <h2 class="mb-3 text-center" style="letter-spacing: 5px;">
         Top 10 Horror Stories
       </h2>
 
@@ -98,6 +98,9 @@
           <div class="card p-3">
             <h5 class="card-title">ShadowHunter</h5>
             <p class="card-text fst-italic">"Haunted House chilled me to the bone. Couldn’t sleep after reading."</p>
+            <div class="mb-2 text-warning">
+              ★★★★☆
+            </div>
             <small class="text-muted">Posted 2 days ago</small>
           </div>
         </div>
