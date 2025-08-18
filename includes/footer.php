@@ -1,5 +1,6 @@
 <!-- Add this in your <head> once -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="css/style.css">
 
 <footer class="social-icons py-3">
   <div class="container text-center">
