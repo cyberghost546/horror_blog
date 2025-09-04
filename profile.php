@@ -1,262 +1,240 @@
 <?php
 session_start();
+include 'track_visit.php';
 require 'includes/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: log_in.php");
-    exit();
+  header('Location: log_in.php');
+  exit();
 }
 
-$user_id = $_SESSION['user_id'];
+$userId = $_SESSION['user_id'];
 
-// User info
 $stmt = $db->prepare("SELECT username, profile_picture FROM users WHERE id = ?");
-$stmt->execute([$user_id]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+$stmt->execute([$userId]);
+$user = $stmt->fetch();
 
-// User stories with counts
-$stmt = $db->prepare("
-    SELECT s.id, s.title, s.image, s.created_at, 
-           (SELECT COUNT(*) FROM story_votes sv WHERE sv.story_id = s.id AND sv.vote_type='like') AS likes,
-           (SELECT COUNT(*) FROM comments c WHERE c.story_id = s.id) AS comments
-    FROM stories s
-    WHERE s.user_id = ?
-    ORDER BY s.created_at DESC
-");
-$stmt->execute([$user_id]);
-$stories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+if (!$user) {
+  session_destroy();
+  header('Location: log_in.php');
+  exit();
+}
 
-// User comments
-$stmt = $db->prepare("
-    SELECT c.comment, c.created_at, s.title, s.id AS story_id
-    FROM comments c
-    JOIN stories s ON c.story_id = s.id
-    WHERE c.user_id = ?
-    ORDER BY c.created_at DESC
-");
-$stmt->execute([$user_id]);
-$comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$submitted = $db->prepare("SELECT id, title FROM stories WHERE user_id = ? ORDER BY created_at DESC");
+$submitted->execute([$userId]);
+$submittedStories = $submitted->fetchAll();
 
-// Liked stories
-$stmt = $db->prepare("
-    SELECT s.id, s.title, s.image, s.created_at
-    FROM stories s
-    JOIN story_votes sv ON s.id = sv.story_id
-    WHERE sv.user_id = ? AND sv.vote_type = 'like'
-    ORDER BY sv.created_at DESC
-");
-$stmt->execute([$user_id]);
-$liked_stories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$liked = $db->prepare("SELECT s.id, s.title FROM stories s JOIN likes l ON s.id = l.story_id WHERE l.user_id = ?");
+$liked->execute([$userId]);
+$likedStories = $liked->fetchAll();
+
+$bookmarked = $db->prepare("SELECT s.id, s.title FROM stories s JOIN bookmarks b ON s.id = b.story_id WHERE b.user_id = ?");
+$bookmarked->execute([$userId]);
+$bookmarkedStories = $bookmarked->fetchAll();
+
+$friends = $db->prepare("SELECT u.id, u.username FROM users u JOIN friends f ON f.friend_id = u.id WHERE f.user_id = ?");
+$friends->execute([$userId]);
+$friendList = $friends->fetchAll();
+
+function e($string)
+{
+  return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $user['username']; ?>'s Profile</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(135deg, #0a0a0a, #1a0000);
-            color: #eee;
-            font-family: 'Segoe UI', sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <title><?= e($user['username']) ?>'s Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: url('images/dark-forest.jpg') no-repeat center center fixed;
+      background-size: cover;
+      background-color: #121212;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
 
-        a {
-            text-decoration: none;
-        }
+    .navbar-dark .navbar-nav .nav-link.active,
+    .navbar-dark .navbar-nav .nav-link:hover {
+      color: #ff0000;
+    }
 
-        .profile-sidebar {
-            background: #141414;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-            position: sticky;
-            top: 20px;
-        }
+    .profile-picture {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid #ff0000;
+    }
 
-        .profile-img {
-            width: 130px;
-            height: 130px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 4px solid #ff0000;
-            box-shadow: 0 0 25px #ff0000;
-        }
+    .card {
+      background-color: #121212;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #eee;
+    }
 
-        .profile-sidebar h3 {
-            margin-top: 15px;
-            font-weight: bold;
-            color: #ff4444;
-        }
+    .card-header {
+      background-color: #181818;
+      color: #ff4d4d;
+      font-weight: bold;
+      user-select: none;
+    }
 
-        .nav-link {
-            color: #eee;
-            padding: 10px 15px;
-            border-radius: 10px;
-            margin: 5px 0;
-            transition: background 0.3s, color 0.3s;
-        }
+    a {
+      color: #ff0000;
+      text-decoration: none;
+    }
 
-        .nav-link:hover {
-            background: #222;
-            color: #ff4444;
-        }
+    a:hover {
+      color: #ff4d4d;
+      text-decoration: underline;
+    }
 
-        .nav-link.active {
-            background: #ff0000;
-            color: #fff;
-            box-shadow: 0 0 15px #ff0000;
-        }
-
-        .card {
-            background: #1b1b1b;
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0 25px #ff0000;
-        }
-
-        .card-img-top {
-            height: 180px;
-            object-fit: cover;
-        }
-
-        .card-body a {
-            color: #ff4444;
-            font-weight: bold;
-        }
-
-        .badge-like {
-            background: #ff0000;
-        }
-
-        .badge-comment {
-            background: #333;
-        }
-
-        .list-group-item {
-            background: #222 !important;
-            border: none;
-            border-radius: 10px;
-        }
-    </style>
+    label {
+      color: #ccc;
+      font-weight: 600;
+    }
+  </style>
 </head>
 
 <body>
+  <!-- Navbar for mobile & desktop -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top border-bottom border-danger">
+    <div class="container-fluid">
+      <a class="navbar-brand text-danger fw-bold" href="#">Silent Evidence</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarProfile" aria-controls="navbarProfile" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-    <div class="container-fluid py-5">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 mb-4">
-                <div class="profile-sidebar text-center">
-                    <img src="<?php echo $user['profile_picture'] ?: 'default-avatar.png'; ?>" class="profile-img mb-3">
-                    <h3><?php echo $user['username']; ?></h3>
-                    <form action="upload_profile.php" method="POST" enctype="multipart/form-data" class="mt-3">
-                        <input type="file" name="profile_picture" accept="image/*" class="form-control form-control-sm mb-2">
-                        <button type="submit" class="btn btn-sm btn-danger w-100">Change Picture</button>
-                    </form>
-                    <ul class="nav flex-column mt-4">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-bs-toggle="tab" href="#stories"><i class="fas fa-book-open me-2"></i>Stories</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#comments"><i class="fas fa-comment me-2"></i>Comments</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#liked"><i class="fas fa-heart me-2"></i>Liked</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="logout.php" class="nav-link text-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i> Logout
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Main Content -->
-            <div class="col-md-9">
-                <div class="tab-content">
-
-                    <!-- Stories -->
-                    <div id="stories" class="tab-pane fade show active">
-                        <div class="row">
-                            <?php if ($stories): ?>
-                                <?php foreach ($stories as $s): ?>
-                                    <div class="col-md-6 mb-4">
-                                        <div class="card">
-                                            <img src="<?php echo $s['image'] ?: 'default-story.png'; ?>" class="card-img-top">
-                                            <div class="card-body">
-                                                <a href="view_story.php?id=<?php echo $s['id']; ?>" class="h5 d-block"><?php echo htmlspecialchars($s['title']); ?></a>
-                                                <small class="text-muted"><?php echo $s['created_at']; ?></small>
-                                                <div class="mt-2">
-                                                    <span class="badge badge-like"><i class="fas fa-heart"></i> <?php echo $s['likes']; ?></span>
-                                                    <span class="badge badge-comment"><i class="fas fa-comment"></i> <?php echo $s['comments']; ?></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <p>No stories yet.</p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <!-- Comments -->
-                    <div id="comments" class="tab-pane fade">
-                        <ul class="list-group">
-                            <?php if ($comments): ?>
-                                <?php foreach ($comments as $c): ?>
-                                    <li class="list-group-item text-light mb-2">
-                                        <strong>On:</strong> <a href="view_story.php?id=<?php echo $c['story_id']; ?>" class="text-danger"><?php echo htmlspecialchars($c['title']); ?></a>
-                                        <p class="mt-2"><?php echo htmlspecialchars($c['comment']); ?></p>
-                                        <span class="float-end text-muted"><?php echo $c['created_at']; ?></span>
-                                    </li>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <li class="list-group-item text-light">No comments yet</li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
-
-                    <!-- Liked Stories -->
-                    <div id="liked" class="tab-pane fade">
-                        <div class="row">
-                            <?php if ($liked_stories): ?>
-                                <?php foreach ($liked_stories as $l): ?>
-                                    <div class="col-md-6 mb-4">
-                                        <div class="card">
-                                            <img src="<?php echo $l['image'] ?: 'default-story.png'; ?>" class="card-img-top">
-                                            <div class="card-body">
-                                                <a href="view_story.php?id=<?php echo $l['id']; ?>" class="h5 d-block"><?php echo htmlspecialchars($l['title']); ?></a>
-                                                <small class="text-muted"><?php echo $l['created_at']; ?></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <p>No liked stories yet.</p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
+      <div class="collapse navbar-collapse" id="navbarProfile">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link active" href="#"><i class="fas fa-user"></i> Profile</a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-book"></i> My Stories</a></li>
+          <li class="nav-item"><a class="nav-link" href="/liked-stories.php"><i class="fas fa-heart"></i> Liked</a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-bookmark"></i> Bookmarks</a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-user-friends"></i> Friends</a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a></li>
+        </ul>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="chat.php"><i class="fas fa-comments"></i> Chat</a></li>
+          <li class="nav-item"><a class="nav-link" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+      </div>
     </div>
+  </nav>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <main class="container py-4">
+    <section class="text-center mb-4" aria-label="User profile header">
+      <img src="<?= e($user['profile_picture']) ? 'uploads/' . e($user['profile_picture']) : 'uploads/default.png' ?>" alt="<?= e($user['username']) ?>'s Profile Picture" class="profile-picture mb-3" />
+      <h2 class="text-danger fw-bold mb-3"><?= e($user['username']) ?></h2>
+
+      <form action="upload-profile-picture.php" method="POST" enctype="multipart/form-data" class="d-flex flex-column align-items-center" aria-label="Upload profile picture form" style="max-width: 300px; margin: 0 auto;">
+        <label for="profile_picture" class="form-label">Change Profile Picture</label>
+        <input type="file" name="profile_picture" id="profile_picture" class="form-control bg-dark text-light border-danger mb-2" accept=".jpg,.jpeg,.png,.gif" required aria-required="true" />
+        <button type="submit" class="btn btn-danger btn-sm fw-semibold">Upload</button>
+      </form>
+      <br>
+      <a href="index.php" class="btn btn-danger fw-semibold mb-3">
+        <i class="fas fa-arrow-left"></i> Back to Home
+      </a>
+    </section>
+
+    <div class="row gy-4">
+      <section class="col-12 col-md-6" aria-label="Submitted Stories">
+        <div class="card">
+          <div class="card-header">📖 Submitted Stories</div>
+          <ul class="list-group list-group-flush">
+            <?php if ($submittedStories): ?>
+              <?php foreach ($submittedStories as $story): ?>
+                <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                  <a href="story.php?id=<?= (int)$story['id'] ?>" class="flex-grow-1"><?= e($story['title']) ?></a>
+                </li>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <li class="list-group-item text-danger text-center">No stories submitted yet.</li>
+            <?php endif; ?>
+          </ul>
+        </div>
+      </section>
+
+      <section class="col-12 col-md-6" aria-label="Liked Stories">
+        <div class="card">
+          <div class="card-header">❤️ Liked Stories</div>
+          <ul class="list-group list-group-flush">
+            <?php if ($likedStories): ?>
+              <?php foreach ($likedStories as $story): ?>
+                <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                  <a href="story.php?id=<?= (int)$story['id'] ?>" class="flex-grow-1"><?= e($story['title']) ?></a>
+                </li>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <li class="list-group-item text-danger text-center">No liked stories yet.</li>
+            <?php endif; ?>
+          </ul>
+        </div>
+      </section>
+
+      <section class="col-12 col-md-6" aria-label="Bookmarked Stories">
+        <div class="card">
+          <div class="card-header">🔖 Bookmarked Stories</div>
+          <ul class="list-group list-group-flush">
+            <?php if ($bookmarkedStories): ?>
+              <?php foreach ($bookmarkedStories as $story): ?>
+                <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                  <a href="story.php?id=<?= (int)$story['id'] ?>" class="flex-grow-1"><?= e($story['title']) ?></a>
+                </li>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <li class="list-group-item text-danger text-center">No bookmarks yet.</li>
+            <?php endif; ?>
+          </ul>
+        </div>
+      </section>
+
+      <section class="col-12 col-md-6" aria-label="Friends List">
+        <div class="card">
+          <div class="card-header">👥 Friends</div>
+          <ul class="list-group list-group-flush">
+            <?php if ($friendList): ?>
+              <?php foreach ($friendList as $friend): ?>
+                <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                  <?= e($friend['username']) ?>
+                  <form action="remove-friend.php" method="POST" class="m-0" onsubmit="return confirm('Remove friend <?= e($friend['username']) ?>?');">
+                    <input type="hidden" name="friend_id" value="<?= (int)$friend['id'] ?>" />
+                    <button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Remove friend <?= e($friend['username']) ?>">Remove</button>
+                  </form>
+                </li>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <li class="list-group-item text-danger text-center">You haven't added any friends yet.</li>
+            <?php endif; ?>
+          </ul>
+        </div>
+      </section>
+
+      <section class="col-12" aria-label="Add Friend">
+        <div class="card p-3">
+          <form action="add-friend.php" method="POST" novalidate>
+            <label for="friend_username" class="form-label">Add Friend by Username</label>
+            <input type="text" id="friend_username" name="friend_username" class="form-control mb-2" required aria-required="true" />
+            <button type="submit" class="btn btn-outline-danger">Add Friend</button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -1,194 +1,231 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.nav-link:hover,
+.dropdown-item:hover {
+  color: #ff0000 !important;
+  background-color: transparent;
+}
+
+.btn-outline-danger:hover {
+  background-color: red;
+  color: white;
+  border-color: red;
+}
+
+.btn-danger:hover {
+  background-color: darkred;
+  border-color: darkred;
+}
+
+.btn-outline-danger:hover {
+  background-color: red;
+  color: white;
+  border-color: red;
+  transition: 0.3s ease;
+}
+
+.btn-danger:hover {
+  background-color: darkred;
+  border-color: darkred;
+  transition: 0.3s ease;
+}
+
+.btn-outline-danger:hover {
+  background-color: red;
+  color: white;
+  border-color: red;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25);
+  border-color: red;
+}
+
+
+.navbar .nav-link:hover,
+.dropdown-item:hover {
+  color: white !important;
+  background-color: red !important;
+  transition: all 0.3s ease;
+}
+
+.navbar .dropdown-item:hover {
+  background-color: red !important;
+  color: white !important;
+  transition: 0.3s ease;
+}
+
+#authDropdown:hover {
+  background-color: red !important;
+  color: white !important;
+  transition: 0.3s ease;
+}
+
+/* <!-- popular-stories --> */
+.popular-stories {
+  background-color: #121212;
+  color: #ff4444;
+  padding: 2rem 1rem;
+  font-family: 'Creepster', cursive;
+}
+
+.popular-stories h2,
+h5 {
+  font-family: 'Creepster', cursive;
+  /* or any spooky font */
+  text-shadow: 0 0 10px #ff0000;
+}
+
+.carousel-caption {
+  text-align: left;
+  bottom: 20px;
+}
+
+.carousel-caption h5 {
+  font-size: 1.75rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 6px #000;
+}
+
+.carousel-caption p {
+  font-size: 1rem;
+  font-style: italic;
+  text-shadow: 1px 1px 4px #000;
+}
+
+.carousel-caption a.btn-danger {
+  background-color: #ff0000;
+  border-color: #bb0000;
+  transition: background-color 0.3s ease;
+}
+
+.carousel-caption a.btn-danger:hover {
+  background-color: #510000;
+  border-color: #ff0000;
+}
+
+.carousel-item img {
+  height: 400px;
+  /* or any fixed height you prefer */
+  object-fit: cover;
+}
+
+.neon-text {
+  color: #ff0000;
+  text-shadow:
+    0 0 5px #ff0000,
+    0 0 10px #ff0000,
+    0 0 20px #ff0000,
+    0 0 40px #ff0000;
+}
+
+.horror-title {
+  font-family: 'Creepster', cursive;
+  font-size: 2.5rem;
+}
+
+/* Homepage footer */
+footer .social-icons a {
+  color: #ff0000;
+  font-size: 1.5rem;
+  text-shadow:
+    0 0 5px #ff0000,
+    0 0 10px #ff0000;
+  transition: transform 0.3s ease;
+}
+
+footer .social-icons a:hover {
+  transform: scale(1.2);
+  color: #fff;
+  text-shadow:
+    0 0 10px #fff,
+    0 0 20px #ff0000;
+}
+
+.horror-title {
+  font-family: 'Creepster', cursive;
+  font-size: 1.8rem;
+}
+
+footer.featured-story {
+  color: #ff0000;
+  /* or use #d10000 for a deeper blood-red */
+}
+
+
+
+
+/* true-scary-stories */
+
 body {
-    background-color: #0d1117;
-    color: #c9d1d9;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #000;
+  color: #ff4d4d;
 }
 
-/* Navbar */
-
-.nav-link:hover {
-    color: #ff0000 !important;
-    border-radius: 25px;
-    box-shadow: 0 0 20px #ff0000 !important;
-    cursor: pointer;
+.horror-title{
+  font-family: 'Creepster', cursive;
+  color: #ff0000;
+  text-shadow: 0 0 10px #ff0000, 0 0 20px #aa0000;
 }
 
-.btn:hover{
-    color: #311010 !important;
-    border-radius: 25px;
-    box-shadow: 0 0 20px #ff0000 !important;
-    cursor: pointer;
+.legend-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.btn-outline-success:hover {
-    background-color: #ff0000 !important;
-    color: #421919 !important;
-    box-shadow: 0 0 20px #ff0000 !important;
-    transform: scale(1.05);
-}
-
-.btn-success:hover {
-    background-color: #ff0000  !important;
-    box-shadow: 0 0 20px #ff0000  !important;
-    transform: scale(1.05);
-}
-
-/* main */
-
-a {
-    transition: color 0.3s ease;
-}
-
-a:hover,
-a:focus {
-    color: #ff0000;
-    text-decoration: none;
-    box-shadow: 0 0 20px #ff0000;
-}
-
-.navbar-dark .navbar-brand,
-.navbar-dark .nav-link {
-    font-weight: 600;
-    letter-spacing: 1px;
-    color: #ff0000 ;
-}
-
-.navbar-dark .nav-link.active {
-    border-bottom: 2px solid #ff0000;
-    padding-bottom: 0.25rem;
-}
-
-.btn-success {
-    background-color: #ff0000;
-    border: none;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-}
-
-.btn-success:hover {
-    background-color: #ff0000 ;
-}
-
-.btn-outline-success {
-    border-color: #ff0000;
-    color: #ff0000;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-outline-success:hover {
-    background-color: #ff0000 ;
-    color: #0d1117;
-}
-
-input.form-control {
-    background-color: #161b22;
-    border: 1.5px solid #ff0000;
-    color: #c9d1d9;
-    font-weight: 500;
-    border-radius: 0.5rem;
-    transition: border-color 0.3s ease;
-}
-
-input.form-control:focus {
-    background-color: #0d1117;
-    border-color: #ff0000 ;
-    color: #ff0000;
-    box-shadow: none;
-}
-
-section {
-    padding-bottom: 3rem;
-}
-
-h2 {
-    color: #ff0000 ;
-    font-weight: 700;
-    letter-spacing: 2px;
-    margin-bottom: 2rem;
-    border-bottom: 2px solid #ff0000;
-    padding-bottom: 0.5rem;
-    max-width: fit-content;
-}
-
-/* Cards */
-.card {
-    background-color: #161b22;
-    border: none;
-    border-radius: 1rem;
-    box-shadow: 0 4px 12px #ff0000 (57, 255, 20, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 20px #ff0000 (57, 255, 20, 0.4);
+.legend-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 15px #ff0000aa;
 }
 
 .card-title {
-    color: #ff0000;
-    font-weight: 700;
+  font-weight: bold;
+  font-size: 1.25rem;
 }
 
 .card-text {
-    color: #a1a9b8;
+  font-size: 0.95rem;
+  color: #f5f5f5;
 }
 
-/* Featured Anime */
-.featured-section {
-    background: linear-gradient(135deg, #0d1117 0%, #16222a 100%);
-    border-radius: 1rem;
-    box-shadow: 0 6px 18px rgba(255, 0, 0, 0.5);
-    padding: 2rem;
-    margin-bottom: 4rem;
+.btn-danger {
+  background-color: #b30000;
+  border: none;
 }
 
-.featured-section img {
-    border-radius: 1rem;
-    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.6);
-    transition: transform 0.3s ease;
+.btn-danger:hover {
+  background-color: #e60000;
 }
 
-.featured-section img:hover {
-    transform: scale(1.05);
+.section-divider {
+  border: none;
+  border-top: 2px solid #660000;
+  margin: 40px 0;
 }
 
-.featured-section h3 {
-    font-weight: 800;
-    color: #ff0000 ;
-    margin-bottom: 1rem;
+.btn-outline-success {
+  border-color: #28a745;
+  color: #28a745;
 }
 
-/* Tags */
-.badge {
-    font-weight: 600;
-    font-size: 0.85rem;
-    transition: background-color 0.3s ease;
+.btn-outline-danger {
+  border-color: #ff4d4d;
+  color: #ff4d4d;
 }
 
-.badge:hover {
-    background-color: #ff0000;
-    cursor: pointer;
+.btn-outline-success:hover {
+  background-color: #28a745;
+  color: #000;
 }
 
-/* Footer */
-footer {
-    background-color: #ff0000;
-    border-top: 2px solid #ff0000;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
+.btn-outline-danger:hover {
+  background-color: #ff4d4d;
+  color: #000;
 }
 
-footer a {
-    color: #ff0000;
-    font-weight: 600;
-}
 
-footer a:hover {
-    color: #f20000e8;
-}
 
-.social-icons {
-    background-color: #000000;
-    color: #ff0000;
-}

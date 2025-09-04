@@ -1,38 +1,24 @@
-<!-- <?php
-try {
-    $db = new PDO("mysql:host=localhost;dbname=silent_evidence;", "root", "");
-    $query = $db->prepare("SELECT * FROM users");
-} catch (PDOException $e) {
-    die("Error: " . $e->getMessage());
-}
-?> -->
-
-
 <?php
-// ================================
-// 1. /includes/db.php
-// ================================
-// Create folder: includes
-// Update DB credentials to your local setup
-
-$DB_HOST = getenv('localhost') ?: 'localhost';
-$DB_NAME = getenv('silent_evidence') ?: 'silent_evidence';
-$DB_USER = getenv('root') ?: 'root';
-$DB_PASS = getenv('') ?: '';
-$DB_CHARSET = 'utf8mb4';
-
-$dsn = "mysql:host={$DB_HOST};dbname={$DB_NAME};charset={$DB_CHARSET}";
-$options = [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES => false,
-];
+$host = 'localhost';
+$dbname = 'silent_evidence';
+$username = 'root';
+$password = '';
+$charset = 'utf8mb4';
 
 try {
-    $db = new PDO($dsn, $DB_USER, $DB_PASS, $options);
-} catch (Throwable $e) {
-    http_response_code(500);
-    echo 'DB connection failed';
-    exit;
+    $db = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
-?>
+
+
+// Ensure the global variable is set
+if (!isset($GLOBALS['db'])) {
+    $GLOBALS['db'] = $db;
+}   
+
+if (isset($_SESSION['user_id'])) {
+    $stmt = $db->prepare("UPDATE user_sessions SET last_active = NOW() WHERE user_id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+}

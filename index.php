@@ -1,142 +1,230 @@
+<?php
+
+include 'auth.php';
+
+if (!isset($_SESSION['user_id'])) {
+  header('Location: log_in.php');
+  exit();
+}
+
+$userId = $_SESSION['user_id'];
+
+// Get users active in the last 5 minutes
+$onlineWindow = date('Y-m-d H:i:s', time() - 300);
+
+$onlineUsersStmt = $db->prepare("
+  SELECT u.username FROM users u
+  INNER JOIN user_sessions us ON u.id = us.user_id
+  WHERE us.last_active >= ?
+");
+$onlineUsersStmt->execute([$onlineWindow]);
+$onlineUsers = $onlineUsersStmt->fetchAll(PDO::FETCH_COLUMN);
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Silent Evidence</title>
-  <!-- Bootstrap CSS CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
-  <link rel="stylesheet" href="css/style.css" />
-
-  <style>
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous">
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Silent Evidence</title>
 </head>
 
 <body>
+    <!-- Header -->
+    <header>
+        <?php include 'partials/navbar.php'; ?>
+    </header>
 
-  <?php include 'includes/header.php'; ?>
+    <!-- popular-stories -->
+    <!-- popular-stories -->
+<section class="popular-stories py-4">
+    <h2 class="text-danger mb-4 text-center">Most Popular Stories</h2>
 
-  <!-- Search Bar -->
-  <section class="container my-5">
-    <form class="d-flex" role="search">
-      <input class="form-control me-3" type="search" placeholder="Search horror stories" aria-label="Search" />
-      <button class="btn btn-success px-4">Search</button>
-    </form>
-  </section>
+    <?php
+    require 'includes/db.php';
 
-  <main class="container">
+    // Get top 3 stories sorted by views or likes
+    $popularStmt = $db->query("
+        SELECT id, title, content, image 
+        FROM stories 
+        ORDER BY views DESC 
+        LIMIT 3
+    ");
+    $popularStories = $popularStmt->fetchAll(PDO::FETCH_ASSOC);
+    ?>
 
-    <!-- Featured Horror Stories -->
-    <section class="container my-5">
-      <h2 class="mb-3 text-center" style="letter-spacing: 5px;">
-        Top 10 Horror Stories
-      </h2>
+    <?php if ($popularStories): ?>
+        <div id="popularStoriesCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+            <div class="carousel-inner">
 
-      <div id="topHorrorCarousel" class="carousel slide shadow-lg rounded" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-          <?php for ($i = 0; $i < 10; $i++): ?>
-            <button type="button" data-bs-target="#topHorrorCarousel" data-bs-slide-to="<?= $i ?>" class="<?= $i == 0 ? 'active' : '' ?>" style="background:#b30000;"></button>
-          <?php endfor; ?>
-        </div>
+                <?php foreach ($popularStories as $index => $story): ?>
+                    <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                        <img src="<?= htmlspecialchars($story['image']) ?>" 
+                             class="d-block w-100 rounded" 
+                             alt="<?= htmlspecialchars($story['title']) ?>">
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3">
+                            <h5><?= htmlspecialchars($story['title']) ?></h5>
+                            <p><?= substr(strip_tags($story['content']), 0, 100) ?>...</p>
+                            <a href="story.php?id=<?= $story['id'] ?>" class="btn btn-danger btn-sm">Read More</a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
 
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <img src="https://placehold.co/900x400/000000/ff0000?text=Haunted+House" class="d-block w-100 rounded" alt="Haunted House" />
-            <div class="carousel-caption d-none d-md-block">
-              <h5>Haunted House</h5>
-              <p>Where every creak could be your last.</p>
             </div>
-          </div>
 
-          <div class="carousel-item">
-            <img src="https://placehold.co/900x400/000000/ff0000?text=Forest+of+Shadows" class="d-block w-100 rounded" alt="Forest of Shadows" />
-            <div class="carousel-caption d-none d-md-block">
-              <h5>Forest of Shadows</h5>
-              <p>Some paths should never be walked.</p>
-            </div>
-          </div>
+            <!-- Carousel Controls -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#popularStoriesCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
 
-          <!-- More items here -->
+            <button class="carousel-control-next" type="button" data-bs-target="#popularStoriesCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
         </div>
+    <?php else: ?>
+        <p class="text-center text-muted">No stories found.</p>
+    <?php endif; ?>
+</section>
 
-        <button class="carousel-control-prev" type="button" data-bs-target="#topHorrorCarousel" data-bs-slide="prev" style="filter: drop-shadow(0 0 5px #ff0000);">
-          <span class="carousel-control-prev-icon"></span>
-          <span class="visually-hidden">Previous</span>
-        </button>
 
-        <button class="carousel-control-next" type="button" data-bs-target="#topHorrorCarousel" data-bs-slide="next" style="filter: drop-shadow(0 0 5px #ff0000);">
-          <span class="carousel-control-next-icon"></span>
-          <span class="visually-hidden">Next</span>
-        </button>
-      </div>
-    </section>
+    <!-- 🔥 1. Featured Story Section -->
+    <section class="featured-story bg-dark text-danger py-5">
+        <div class="container text-center">
+            <h2 class="mb-4 text-danger">Featured Nightmare</h2>
+            <img src="/images/A weathered, rustic .png" alt="Featured Story" class="img-fluid rounded shadow mb-3">
+            <?php
+            require 'includes/db.php';
 
-    <!-- Trending Horror Reads -->
-    <section class="mb-5">
-      <h2>Trending Horror Reads</h2>
-      <div class="row g-4">
-        <div class="col-6 col-md-3">
-          <div class="card">
-            <img src="https://placehold.co/200x300/000000/ff0000?text=The+Dollmaker" class="card-img-top" alt="The Dollmaker" />
-            <div class="card-body">
-              <h5 class="card-title">The Dollmaker</h5>
-              <p class="card-text">Every doll has a soul... but whose?</p>
-            </div>
-          </div>
+            $featuredStmt = $db->query("SELECT * FROM stories WHERE featured = 1 LIMIT 1");
+            $featured = $featuredStmt->fetch();
+            ?>
+
+            <?php if ($featured): ?>
+                <h3 class="fw-bold mt-3"><?= htmlspecialchars($featured['title']) ?></h3>
+                <p class="lead fst-italic"><?= substr(strip_tags($featured['content']), 0, 150) ?>...</p>
+                <a href="story.php?id=<?= $featured['id'] ?>" class="btn btn-danger rounded-pill px-4 py-2">Read Full Story</a>
+            <?php else: ?>
+                <h3 class="fw-bold mt-3">No Featured Story Yet</h3>
+            <?php endif; ?>
         </div>
-        <!-- More horror cards -->
-      </div>
     </section>
 
-    <!-- User Reviews -->
-    <section class="mb-5">
-      <h2>User Reviews</h2>
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="card p-3">
-            <h5 class="card-title">ShadowHunter</h5>
-            <p class="card-text fst-italic">"Haunted House chilled me to the bone. Couldn’t sleep after reading."</p>
-            <div class="mb-2 text-warning">
-              ★★★★☆
-            </div>
-            <small class="text-muted">Posted 2 days ago</small>
-          </div>
+    <!-- 2. Submit Your Story CTA -->
+    <section class="submit-cta bg-black text-danger text-center py-5">
+        <div class="container">
+            <h2 class="mb-3">Have a True Story to Share?</h2>
+            <p class="mb-4">We accept real paranormal and horror encounters from people just like you.</p>
+            <a href="/submit-story.html" class="btn btn-outline-danger rounded-pill px-4 py-2">Submit Yours</a>
         </div>
-        <!-- More reviews -->
-      </div>
     </section>
 
-    <!-- Newsletter -->
-    <section class="mb-5 p-4 text-center" style="background: #111; border: 1.5px solid #b30000;">
-      <h2>Join the Dark Side</h2>
-      <form class="d-flex justify-content-center mt-3" style="max-width: 500px; margin:auto;">
-        <input type="email" class="form-control me-3" placeholder="Enter your email" required />
-        <button type="submit" class="btn btn-success px-4">Subscribe</button>
-      </form>
+    <!-- 3. Short Horror Video/Audio Clips -->
+    <section class="horror-media bg-dark text-light py-5">
+        <div class="container">
+            <h2 class="text-danger text-center mb-4">Watch or Listen If You Dare</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-6 mb-4">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="YouTube video"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <audio controls class="w-100 rounded shadow">
+                        <source src="audio/creepy-story.mp3" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                    <p class="text-center mt-2">A reading of “The Woods Were Never Empty”</p>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <!-- Social Media -->
-    <section class="mb-5 text-center">
-      <h2>Follow the Fear</h2>
-      <a href="#" class="btn btn-outline-success me-3 px-4">Twitter</a>
-      <a href="#" class="btn btn-outline-success me-3 px-4">Instagram</a>
-      <a href="#" class="btn btn-outline-success px-4">Discord</a>
+    <!-- 4. Reader Testimonials -->
+    <section class="testimonials bg-black text-danger py-5">
+        <div class="container text-center">
+            <h2 class="mb-5">What Our Readers Say</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-4">
+                    <blockquote class="blockquote">
+                        <p>“Gave me chills! I couldn't sleep after reading ‘The Wraith’.”</p>
+                        <footer class="blockquote-footer text-light">Alex from Ohio</footer>
+                    </blockquote>
+                </div>
+                <div class="col-md-4">
+                    <blockquote class="blockquote">
+                        <p>“The stories feel too real. It's like you're there...”</p>
+                        <footer class="blockquote-footer text-light">Maya from Cape Town</footer>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <!-- About Author -->
-    <section class="mb-5 p-4" style="background: #111; border: 1.5px solid #b30000;">
-      <h2>About The Author</h2>
-      <p>I’m Chris. I collect the most spine-chilling horror tales from around the world. If you dare, step inside...</p>
+    <!-- 5. Category Cards Grid (instead of dropdown) -->
+    <section class="story-categories py-5 bg-dark text-light">
+        <div class="container">
+            <h2 class="text-danger text-center mb-4">Browse by Category</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col">
+                    <div class="card bg-black border-danger h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-danger">Haunted Houses</h5>
+                            <p class="card-text">Terrifying tales from within cursed walls.</p>
+                            <a href="#" class="btn btn-danger btn-sm">Explore</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card bg-black border-danger h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-danger">Haunted Houses</h5>
+                            <p class="card-text">Terrifying tales from within cursed walls.</p>
+                            <a href="#" class="btn btn-danger btn-sm">Explore</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card bg-black border-danger h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-danger">Haunted Houses</h5>
+                            <p class="card-text">Terrifying tales from within cursed walls.</p>
+                            <a href="#" class="btn btn-danger btn-sm">Explore</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Repeat for other categories -->
+            </div>
+        </div>
     </section>
 
-  </main>
+    <!-- 6. Horror Countdown Timer  -->
+    <section class="countdown-timer bg-black text-danger text-center py-5">
+        <div class="container">
+            <h2 class="mb-4 horror-title">Next Story Drops In</h2>
+            <div id="timer" class="fs-1 fw-bold neon-text">--:--:--</div>
+        </div>
+    </section>
 
-  <?php include 'includes/footer.php'; ?>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+    <!-- 7. Footer -->
+    <?php include 'partials/footer.php'; ?>
 </body>
+<script src="js/main.js"></script>
 
 </html>

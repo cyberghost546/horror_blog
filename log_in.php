@@ -1,29 +1,37 @@
 <?php
-session_start();
-require 'includes/db.php';
 
-$errors = [];
+session_start();
+require 'includes/db.php'; // This should define $db
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $username = trim($_POST['username']);
-  $password = $_POST['password'];
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
 
-  if (empty($username) || empty($password)) {
-    $errors[] = "Username and password are required.";
-  } else {
-    $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
-    $stmt->execute([$username]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Fetch the user
+    $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
-      $_SESSION['user_id'] = $user['id'];
-      $_SESSION['username'] = $user['username'];
-      header("Location: index.php");
-      exit();
+        // Login success: set session variables
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['role'] = $user['role'];
+
+        // Save to user_sessions for tracking
+        $track = $db->prepare("REPLACE INTO user_sessions (user_id, last_active) VALUES (?, NOW())");
+        $track->execute([$user['id']]);
+
+        // Redirect based on role
+        if ($user['role'] === 'admin') {
+            header("Location: admin-dashboard.php");
+        } else {
+            header("Location: profile.php");
+        }
+        exit();
     } else {
-      $errors[] = "Incorrect username or password.";
+        $error = "Invalid email or password.";
     }
-  }
 }
 ?>
 
@@ -31,128 +39,108 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Log In - Anime Blog</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <title>Login | Silent Evidence</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet" />
+
   <style>
     body {
-      background-color: #000;
+      background-color: #0d0d0d;
+      color: #f8d7da;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .login-box {
+      background-color: #1a1a1a;
+      border: 1px solid #ff0000;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 0 70px rgba(255, 0, 0, 0.3);
+    }
+
+    .login-title {
+      font-family: 'Creepster', cursive;
+      font-size: 2.5rem;
       color: #ff0000;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2rem;
-    }
-    .login-container {
-      background-color: #111;
-      border: 2px solid #ff0000;
-      padding: 2rem;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 0 120px #ff0000aa;
-    }
-    h2 {
       text-align: center;
-      margin-bottom: 1.5rem;
-      color: #ff0000;
-      text-transform: uppercase;
-      letter-spacing: 2px;
+      margin-bottom: 30px;
     }
-    label {
-      color: #cc0000ff;
-      font-weight: 600;
-    }
-    input.form-control {
-      background-color: #000;
-      border: 1.5px solid #ff0000;
-      color: #ff0000;
-      transition: border-color 0.3s ease;
-    }
-    input.form-control:focus {
-      border-color: #cc0000ff;
-      box-shadow: 0 0 8px #cc0000aa;
-      color: #ff0000;
-      background-color: #000;
-    }
-    .btn-success {
-      background-color: #ff0000;
-      border: none;
-      color: #000;
-      font-weight: 700;
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 1rem;
-      transition: background-color 0.3s ease;
-    }
-    .btn-success:hover {
-      background-color: #cc0000;
+
+    .form-control {
+      background-color: #111;
+      border: 1px solid #ff4d4d;
       color: #fff;
     }
-    .btn-link {
-      color: #cc0000;
-      display: block;
+
+    .form-control:focus {
+      background-color: #111;
+      border-color: #ff0000;
+      color: #fff;
+      box-shadow: none;
+    }
+
+    .btn-danger {
+      background-color: #ff0000;
+      border: none;
+    }
+
+    .btn-danger:hover {
+      background-color: #cc0000;
+    }
+
+    .footer-text {
       text-align: center;
-      margin-top: 1rem;
-      text-decoration: none;
-      font-weight: 600;
-      transition: color 0.3s ease;
-    }
-    .btn-link:hover {
-      color: #cc0000ff;
-      text-decoration: underline;
-    }
-    .alert-danger {
-      background-color: #330000;
-      border-color: #660000;
-      color: #ff4444;
-      font-weight: 600;
-      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      margin-top: 20px;
+      color: #888;
     }
   </style>
 </head>
+
 <body>
+  <div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="login-box w-100" style="max-width: 400px;">
+      <h1 class="login-title">Log In to the Darkness</h1>
 
-  <div class="login-container">
-    <h2>Log In</h2>
+      <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger text-center">
+          <?= $_SESSION['error'];
+          unset($_SESSION['error']); ?>
+        </div>
+      <?php endif; ?>
 
-    <?php if ($errors): ?>
-      <div class="alert alert-danger">
-        <?php foreach($errors as $error) echo "<div>$error</div>"; ?>
+      <!-- Login Form -->
+      <form action="login-process.php" method="POST">
+        <div class="mb-3">
+          <label for="username_email" class="form-label text-danger">Username or Email</label>
+          <input type="text" class="form-control" id="username_email" name="username_email"
+            value="<?= $_COOKIE['username_email'] ?? '' ?>" required />
+
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label text-danger">Password</label>
+          <input type="password" class="form-control" id="password" name="password" required />
+        </div>
+
+        <button type="submit" class="btn btn-danger w-100">Log In</button>
+        <br>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="rememberMe" name="remember_me" />
+          <label class="form-check-label text-danger" for="rememberMe">Remember Me</label>
+        </div>
+
+      </form>
+
+
+      <div class="footer-text mt-4">
+        New here? <a href="signup.php" class="text-danger text-decoration-none">Create Account</a>
       </div>
-    <?php endif; ?>
-
-    <form method="post" action="log_in.php" novalidate>
-      <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input
-          type="text"
-          class="form-control"
-          id="username"
-          name="username"
-          required
-          value="<?=htmlspecialchars($_POST['username'] ?? '')?>"
-          autocomplete="username"
-        />
-      </div>
-
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input
-          type="password"
-          class="form-control"
-          id="password"
-          name="password"
-          required
-          autocomplete="current-password"
-        />
-      </div>
-
-      <button type="submit" class="btn btn-success">Log In</button>
-      <a href="sign_up.php" class="btn-link">Don't have an account? Sign Up</a>
-    </form>
+    </div>
   </div>
-
 </body>
+
 </html>
