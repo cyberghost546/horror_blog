@@ -153,13 +153,22 @@ $allStories = $db->query("SELECT * FROM stories ORDER BY created_at DESC")->fetc
 <body>
     <div class="sidebar bg-dark">
         <h3><i class="bi bi-emoji-sunglasses icon"></i>Silent Admin</h3>
-        <a href="#" class="active bg-success"><i class="bi bi-house icon"></i> Dashboard</a>
+
+        <!-- Home Button -->
+        <a href="index.php" class="nav-link text-light">
+            <i class="bi bi-house-door icon"></i> Home
+        </a>
+
+        <!-- Dashboard -->
+        <a href="admin_dashboard.php" class="active bg-success">
+            <i class="bi bi-speedometer2 icon"></i> Dashboard
+        </a>
+
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link text-light" href="admin_users.php">
                     <i class="bi bi-people me-2"></i> Users
                 </a>
-
             </li>
             <li class="nav-item">
                 <a class="nav-link text-light" href="admin_stories.php">
@@ -171,9 +180,17 @@ $allStories = $db->query("SELECT * FROM stories ORDER BY created_at DESC")->fetc
                     <i class="fas fa-cogs me-2"></i> Settings
                 </a>
             </li>
+            <li>
+                <!-- Go Back Home Button -->
+                <a href="index.php" class="btn btn-horror mb-3">
+                    <i class="bi bi-house-door-fill"></i> Back to Home
+                </a>
+            </li>
         </ul>
+
         <a href="logout.php"><i class="bi bi-box-arrow-right icon"></i> Logout</a>
     </div>
+
 
     <div class="main">
         <h2 class="mb-4 text-danger">Admin Dashboard</h2>
@@ -407,7 +424,6 @@ $allStories = $db->query("SELECT * FROM stories ORDER BY created_at DESC")->fetc
     </div>
 
     <div id="countdown"></div>
-
     <script>
         fetch('get_drop_time.php')
             .then(res => res.json())
