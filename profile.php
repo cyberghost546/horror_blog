@@ -51,187 +51,212 @@ $liked_stories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?php echo $user['username']; ?>'s Profile</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <style>
-    body {
-      background: linear-gradient(135deg, #0a0a0a, #1a0000);
-      color: #eee;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    a { text-decoration: none; }
-    .profile-sidebar {
-      background: #141414;
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 0 15px rgba(255,0,0,0.3);
-      position: sticky;
-      top: 20px;
-    }
-    .profile-img {
-      width: 130px;
-      height: 130px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 4px solid #ff0000;
-      box-shadow: 0 0 25px #ff0000;
-    }
-    .profile-sidebar h3 {
-      margin-top: 15px;
-      font-weight: bold;
-      color: #ff4444;
-    }
-    .nav-link {
-      color: #eee;
-      padding: 10px 15px;
-      border-radius: 10px;
-      margin: 5px 0;
-      transition: background 0.3s, color 0.3s;
-    }
-    .nav-link:hover {
-      background: #222;
-      color: #ff4444;
-    }
-    .nav-link.active {
-      background: #ff0000;
-      color: #fff;
-      box-shadow: 0 0 15px #ff0000;
-    }
-    .card {
-      background: #1b1b1b;
-      border: none;
-      border-radius: 15px;
-      overflow: hidden;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 0 25px #ff0000;
-    }
-    .card-img-top {
-      height: 180px;
-      object-fit: cover;
-    }
-    .card-body a {
-      color: #ff4444;
-      font-weight: bold;
-    }
-    .badge-like {
-      background: #ff0000;
-    }
-    .badge-comment {
-      background: #333;
-    }
-    .list-group-item {
-      background: #222 !important;
-      border: none;
-      border-radius: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $user['username']; ?>'s Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a0000);
+            color: #eee;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .profile-sidebar {
+            background: #141414;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+            position: sticky;
+            top: 20px;
+        }
+
+        .profile-img {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #ff0000;
+            box-shadow: 0 0 25px #ff0000;
+        }
+
+        .profile-sidebar h3 {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #ff4444;
+        }
+
+        .nav-link {
+            color: #eee;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 5px 0;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .nav-link:hover {
+            background: #222;
+            color: #ff4444;
+        }
+
+        .nav-link.active {
+            background: #ff0000;
+            color: #fff;
+            box-shadow: 0 0 15px #ff0000;
+        }
+
+        .card {
+            background: #1b1b1b;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px #ff0000;
+        }
+
+        .card-img-top {
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .card-body a {
+            color: #ff4444;
+            font-weight: bold;
+        }
+
+        .badge-like {
+            background: #ff0000;
+        }
+
+        .badge-comment {
+            background: #333;
+        }
+
+        .list-group-item {
+            background: #222 !important;
+            border: none;
+            border-radius: 10px;
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container-fluid py-5">
-  <div class="row">
-    <!-- Sidebar -->
-    <div class="col-md-3 mb-4">
-      <div class="profile-sidebar text-center">
-        <img src="<?php echo $user['profile_picture'] ?: 'default-avatar.png'; ?>" class="profile-img mb-3">
-        <h3><?php echo $user['username']; ?></h3>
-        <form action="upload_profile.php" method="POST" enctype="multipart/form-data" class="mt-3">
-          <input type="file" name="profile_picture" accept="image/*" class="form-control form-control-sm mb-2">
-          <button type="submit" class="btn btn-sm btn-danger w-100">Change Picture</button>
-        </form>
-        <ul class="nav flex-column mt-4">
-          <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="tab" href="#stories"><i class="fas fa-book-open me-2"></i>Stories</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#comments"><i class="fas fa-comment me-2"></i>Comments</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#liked"><i class="fas fa-heart me-2"></i>Liked</a>
-          </li>
-        </ul>
-      </div>
+    <div class="container-fluid py-5">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 mb-4">
+                <div class="profile-sidebar text-center">
+                    <img src="<?php echo $user['profile_picture'] ?: 'default-avatar.png'; ?>" class="profile-img mb-3">
+                    <h3><?php echo $user['username']; ?></h3>
+                    <form action="upload_profile.php" method="POST" enctype="multipart/form-data" class="mt-3">
+                        <input type="file" name="profile_picture" accept="image/*" class="form-control form-control-sm mb-2">
+                        <button type="submit" class="btn btn-sm btn-danger w-100">Change Picture</button>
+                    </form>
+                    <ul class="nav flex-column mt-4">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#stories"><i class="fas fa-book-open me-2"></i>Stories</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#comments"><i class="fas fa-comment me-2"></i>Comments</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#liked"><i class="fas fa-heart me-2"></i>Liked</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="logout.php" class="nav-link text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="tab-content">
+
+                    <!-- Stories -->
+                    <div id="stories" class="tab-pane fade show active">
+                        <div class="row">
+                            <?php if ($stories): ?>
+                                <?php foreach ($stories as $s): ?>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card">
+                                            <img src="<?php echo $s['image'] ?: 'default-story.png'; ?>" class="card-img-top">
+                                            <div class="card-body">
+                                                <a href="view_story.php?id=<?php echo $s['id']; ?>" class="h5 d-block"><?php echo htmlspecialchars($s['title']); ?></a>
+                                                <small class="text-muted"><?php echo $s['created_at']; ?></small>
+                                                <div class="mt-2">
+                                                    <span class="badge badge-like"><i class="fas fa-heart"></i> <?php echo $s['likes']; ?></span>
+                                                    <span class="badge badge-comment"><i class="fas fa-comment"></i> <?php echo $s['comments']; ?></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p>No stories yet.</p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div id="comments" class="tab-pane fade">
+                        <ul class="list-group">
+                            <?php if ($comments): ?>
+                                <?php foreach ($comments as $c): ?>
+                                    <li class="list-group-item text-light mb-2">
+                                        <strong>On:</strong> <a href="view_story.php?id=<?php echo $c['story_id']; ?>" class="text-danger"><?php echo htmlspecialchars($c['title']); ?></a>
+                                        <p class="mt-2"><?php echo htmlspecialchars($c['comment']); ?></p>
+                                        <span class="float-end text-muted"><?php echo $c['created_at']; ?></span>
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <li class="list-group-item text-light">No comments yet</li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+
+                    <!-- Liked Stories -->
+                    <div id="liked" class="tab-pane fade">
+                        <div class="row">
+                            <?php if ($liked_stories): ?>
+                                <?php foreach ($liked_stories as $l): ?>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card">
+                                            <img src="<?php echo $l['image'] ?: 'default-story.png'; ?>" class="card-img-top">
+                                            <div class="card-body">
+                                                <a href="view_story.php?id=<?php echo $l['id']; ?>" class="h5 d-block"><?php echo htmlspecialchars($l['title']); ?></a>
+                                                <small class="text-muted"><?php echo $l['created_at']; ?></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p>No liked stories yet.</p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="col-md-9">
-      <div class="tab-content">
-        
-        <!-- Stories -->
-        <div id="stories" class="tab-pane fade show active">
-          <div class="row">
-            <?php if ($stories): ?>
-              <?php foreach ($stories as $s): ?>
-                <div class="col-md-6 mb-4">
-                  <div class="card">
-                    <img src="<?php echo $s['image'] ?: 'default-story.png'; ?>" class="card-img-top">
-                    <div class="card-body">
-                      <a href="view_story.php?id=<?php echo $s['id']; ?>" class="h5 d-block"><?php echo htmlspecialchars($s['title']); ?></a>
-                      <small class="text-muted"><?php echo $s['created_at']; ?></small>
-                      <div class="mt-2">
-                        <span class="badge badge-like"><i class="fas fa-heart"></i> <?php echo $s['likes']; ?></span>
-                        <span class="badge badge-comment"><i class="fas fa-comment"></i> <?php echo $s['comments']; ?></span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              <?php endforeach; ?>
-            <?php else: ?>
-              <p>No stories yet.</p>
-            <?php endif; ?>
-          </div>
-        </div>
-
-        <!-- Comments -->
-        <div id="comments" class="tab-pane fade">
-          <ul class="list-group">
-            <?php if ($comments): ?>
-              <?php foreach ($comments as $c): ?>
-                <li class="list-group-item text-light mb-2">
-                  <strong>On:</strong> <a href="view_story.php?id=<?php echo $c['story_id']; ?>" class="text-danger"><?php echo htmlspecialchars($c['title']); ?></a>
-                  <p class="mt-2"><?php echo htmlspecialchars($c['comment']); ?></p>
-                  <span class="float-end text-muted"><?php echo $c['created_at']; ?></span>
-                </li>
-              <?php endforeach; ?>
-            <?php else: ?>
-              <li class="list-group-item text-light">No comments yet</li>
-            <?php endif; ?>
-          </ul>
-        </div>
-
-        <!-- Liked Stories -->
-        <div id="liked" class="tab-pane fade">
-          <div class="row">
-            <?php if ($liked_stories): ?>
-              <?php foreach ($liked_stories as $l): ?>
-                <div class="col-md-6 mb-4">
-                  <div class="card">
-                    <img src="<?php echo $l['image'] ?: 'default-story.png'; ?>" class="card-img-top">
-                    <div class="card-body">
-                      <a href="view_story.php?id=<?php echo $l['id']; ?>" class="h5 d-block"><?php echo htmlspecialchars($l['title']); ?></a>
-                      <small class="text-muted"><?php echo $l['created_at']; ?></small>
-                    </div>
-                  </div>
-                </div>
-              <?php endforeach; ?>
-            <?php else: ?>
-              <p>No liked stories yet.</p>
-            <?php endif; ?>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
