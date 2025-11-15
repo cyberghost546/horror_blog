@@ -2,13 +2,18 @@
 session_start();
 require 'include/db.php';
 
+// always define this so PHP does not complain
+$errors = [];
+
 // If already logged in redirect
 if (!empty($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+        header('Location: dashboard.php');
+    } else {
+        header('Location: index.php');
+    }
     exit;
 }
-
-$errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -20,8 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$errors) {
-
-        // Fetch user
         $stmt = $pdo->prepare(
             'SELECT id, username, email, password_hash, display_name, avatar, role
                FROM users
@@ -31,22 +34,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([':login' => $login]);
         $user = $stmt->fetch();
 
-        // Validate password
         if (!$user || !password_verify($password, $user['password_hash'])) {
             $errors[] = 'Login or password is wrong';
         } else {
-
-            // Update last login
             $stmt = $pdo->prepare('UPDATE users SET last_login = NOW() WHERE id = :id');
             $stmt->execute([':id' => $user['id']]);
 
-            // Set session
             $_SESSION['user_id']     = $user['id'];
             $_SESSION['user_name']   = $user['display_name'] ?: $user['username'];
             $_SESSION['user_avatar'] = $user['avatar'];
-            $_SESSION['user_role'] = $user['role'];
+            $_SESSION['user_role']   = $user['role'];
 
-            header('Location: dashboard.php');
+            if ($user['role'] === 'admin') {
+                header('Location: dashboard.php');
+            } else {
+                header('Location: index.php');
+            }
             exit;
         }
     }
@@ -57,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <meta charset="utf-8">
-    <title>Login silent_evidence</title>
+    <title>Login | silent_evidence</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -65,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>
         body {
             background-color: #020617;
-            color: #0f172a;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
@@ -79,128 +81,136 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .auth-card {
             width: 100%;
-            max-width: 420px;
-            background-color: #ffffff;
-            border-radius: 18px;
-            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.45);
-            overflow: hidden;
-        }
-
-        .auth-card-topbar {
-            height: 6px;
-            background: #16a34a;
-        }
-
-        .auth-card-body {
-            padding: 28px 28px 22px 28px;
+            max-width: 430px;
+            background-color: #0f172a;
+            border-radius: 20px;
+            border: 1px solid #1e293b;
+            padding: 28px;
+            box-shadow: 0 0 25px rgba(246, 0, 0, 0.25);
         }
 
         .auth-title {
-            font-size: 1.25rem;
-            font-weight: 600;
+            color: #f60000;
+            font-size: 1.6rem;
+            font-weight: 700;
             text-align: center;
-            margin-bottom: 4px;
-            color: #0f172a;
         }
 
         .auth-subtitle {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
+            color: #94a3b8;
             text-align: center;
-            color: #64748b;
             margin-bottom: 18px;
         }
 
-        .form-label {
-            font-size: 0.8rem;
-            color: #0f172a;
-            margin-bottom: 4px;
+        .label-text {
+            font-size: 0.85rem;
+            color: #94a3b8;
         }
 
         .form-control {
-            font-size: 0.85rem;
-            padding: 0.55rem 0.7rem;
+            background-color: #1e293b;
+            border-color: #334155;
+            color: #e2e8f0 !important;
             border-radius: 10px;
+            font-size: 0.9rem;
         }
 
         .form-control:focus {
-            box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.18);
-            border-color: #16a34a;
+            background-color: #1e293b;
+            border-color: #f60000;
+            box-shadow: 0 0 0 2px rgba(246, 0, 0, 0.3);
+        }
+
+        .form-control::placeholder {
+            color: #64748b;
         }
 
         .btn-login {
-            background-color: #1f2937;
-            color: #ffffff;
-            border-radius: 999px;
-            font-size: 0.9rem;
-            padding: 0.6rem;
+            background-color: #f60000;
+            color: #0f172a;
             width: 100%;
+            padding: 10px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .btn-login:hover {
-            background-color: #111827;
-        }
-
-        .auth-footer-text {
-            font-size: 0.8rem;
-            text-align: center;
-            color: #6b7280;
-            margin-top: 10px;
-        }
-
-        .auth-footer-text a {
-            color: #0f172a;
-            font-weight: 500;
-            text-decoration: none;
-        }
-
-        .auth-footer-text a:hover {
-            text-decoration: underline;
+            background-color: #ca0000;
         }
 
         .divider {
-            display: flex;
-            align-items: center;
             text-align: center;
-            margin: 16px 0 10px 0;
+            color: #64748b;
+            margin: 18px 0;
+        }
+
+        .divider span {
+            padding: 0 12px;
+            background-color: #0f172a;
         }
 
         .divider::before,
         .divider::after {
             content: "";
-            flex: 1;
-            border-bottom: 1px solid #e5e7eb;
+            display: inline-block;
+            width: 30%;
+            border-bottom: 1px solid #1f2937;
+            vertical-align: middle;
         }
 
-        .divider span {
-            font-size: 0.75rem;
-            color: #9ca3af;
-            padding: 0 8px;
-        }
-
-        .btn-google {
-            font-size: 0.85rem;
-            border-radius: 999px;
-            border-color: #e5e7eb;
-            background-color: #ffffff;
+        .google-btn {
             width: 100%;
-            padding: 0.55rem;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+        }
+
+        .google-btn:hover {
+            background-color: #293548;
+        }
+
+        .small-text {
+            text-align: center;
+            color: #94a3b8;
+            margin-top: 12px;
+            font-size: 0.85rem;
+        }
+
+        .small-text a {
+            color: #f60000;
+            text-decoration: none;
+        }
+
+        .small-text a:hover {
+            text-decoration: underline;
+        }
+
+        .alert-small {
+            font-size: 0.8rem;
+            padding: 0.45rem 0.6rem;
+            border-radius: 8px;
         }
     </style>
 </head>
 
 <body>
 
-<?php include 'header.php'; ?>
+    <?php include 'include/header.php'; ?>
 
-<div class="auth-wrapper">
-    <div class="auth-card">
-        <div class="auth-card-topbar"></div>
+    <div class="auth-wrapper">
+        <div class="auth-card">
 
-        <div class="auth-card-body">
             <h1 class="auth-title">Log in</h1>
-            <p class="auth-subtitle">Welcome back to silent_evidence</p>
+            <p class="auth-subtitle">
+                Welcome back to Silent Evidence
+            </p>
 
-            <?php if ($errors): ?>
+            <?php if (!empty($errors)): ?>
                 <div class="alert alert-danger alert-small">
                     <?php foreach ($errors as $err) echo '<div>' . htmlspecialchars($err) . '</div>'; ?>
                 </div>
@@ -208,40 +218,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if (!empty($_GET['registered'])): ?>
                 <div class="alert alert-success alert-small">
-                    Account created. You can log in now.
+                    Account created, you can log in now.
                 </div>
             <?php endif; ?>
 
             <form method="post" novalidate>
-                <div class="mb-2">
-                    <label class="form-label">Username or email</label>
-                    <input type="text" name="login" class="form-control"
-                           value="<?php echo htmlspecialchars($_POST['login'] ?? '') ?>" required>
-                </div>
-
                 <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required>
+                    <label class="label-text">Username or email</label>
+                    <input
+                        type="text"
+                        name="login"
+                        class="form-control"
+                        placeholder="yourname or you@example.com"
+                        value="<?php echo htmlspecialchars($_POST['login'] ?? '') ?>"
+                        required>
                 </div>
 
-                <button type="submit" class="btn btn-login">Log in</button>
+                <div class="mb-2">
+                    <label class="label-text">Password</label>
+                    <input
+                        type="password"
+                        name="password"
+                        class="form-control"
+                        placeholder="Your password"
+                        required>
+                </div>
+
+                <button type="submit" class="btn btn-login mt-3">
+                    Log in
+                </button>
             </form>
 
-            <p class="auth-footer-text">
-                Do not have an account yet?
+            <p class="small-text">
+                No account yet
                 <a href="signup.php">Sign up</a>
             </p>
 
-            <div class="divider"><span>or</span></div>
+            <div class="divider">
+                <span>or</span>
+            </div>
 
-            <button type="button" class="btn btn-google">
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="google-icon" alt="G">
-                Log in with Google
+            <button type="button" class="google-btn">
+                <img
+                    src="https://www.svgrepo.com/show/475656/google-color.svg"
+                    width="18"
+                    class="me-2"
+                    alt="G">
+                Continue with Google
             </button>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([':uid' => $userId, ':title' => $title, ':slug' => $slug, ':cat' => $category, ':content' => $content, ':pub' => $publish,]);
         $newId = (int) $pdo->lastInsertId();
         if ($publish) {
-            header('Location: story.php?id=' . $newId);
+            header('Location: stories.php?id=' . $newId);
             exit;
         } else {
             $success = 'Draft saved';
@@ -198,33 +198,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-3"> <label class="form-label">Title</label> <input type="text" name="title" class="form-control" placeholder="The thing that watched me from the hallway" value="<?php echo htmlspecialchars($_POST['title'] ?? ''); ?>" required>
                         <div class="small-hint mt-1"> Make it short and scary. This is what users will see first. </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Category</label>
-                        <select name="category" class="form-select">
-                            <?php
-                            $currentCat = $_POST['category'] ?? 'true';
-                            ?>
-                            <option value="true" <?php echo $currentCat === 'true' ? 'selected' : ''; ?>>
-                                True story
-                            </option>
-                            <option value="paranormal" <?php echo $currentCat === 'paranormal' ? 'selected' : ''; ?>>
-                                Paranormal
-                            </option>
-                            <option value="urban" <?php echo $currentCat === 'urban' ? 'selected' : ''; ?>>
-                                Urban legend
-                            </option>
-                            <option value="short" <?php echo $currentCat === 'short' ? 'selected' : ''; ?>>
-                                Short nightmare
-                            </option>
+                    <div class="mb-3"> <label class="form-label">Category</label> <?php $currentCat = $_POST['category'] ?? 'true'; ?> <select name="category" class="form-select">
+                            <option value="true" <?php echo $currentCat === 'true' ? 'selected' : ''; ?>>True story</option>
+                            <option value="paranormal" <?php echo $currentCat === 'paranormal' ? 'selected' : ''; ?>>Paranormal</option>
+                            <option value="urban" <?php echo $currentCat === 'urban' ? 'selected' : ''; ?>>Urban legend</option>
+                            <option value="short" <?php echo $currentCat === 'short' ? 'selected' : ''; ?>>Short nightmare</option>
+                            <option value="haunted" <?php echo $currentCat === 'haunted' ? 'selected' : ''; ?>>Haunted places</option>
+                            <option value="ghosts" <?php echo $currentCat === 'ghosts' ? 'selected' : ''; ?>>Ghost encounters</option>
+                            <option value="missing" <?php echo $currentCat === 'missing' ? 'selected' : ''; ?>>Missing persons</option>
+                            <option value="crime" <?php echo $currentCat === 'crime' ? 'selected' : ''; ?>>Crime and mystery</option>
+                            <option value="sleep" <?php echo $currentCat === 'sleep' ? 'selected' : ''; ?>>Sleep paralysis</option>
+                            <option value="forest" <?php echo $currentCat === 'forest' ? 'selected' : ''; ?>>Forest horror</option>
+                            <option value="calls" <?php echo $currentCat === 'calls' ? 'selected' : ''; ?>>Strange phone calls</option>
+                            <option value="creatures" <?php echo $currentCat === 'creatures' ? 'selected' : ''; ?>>Creature sightings</option>
+                            <option value="abandoned" <?php echo $currentCat === 'abandoned' ? 'selected' : ''; ?>>Abandoned places</option>
+                            <option value="psychological" <?php echo $currentCat === 'psychological' ? 'selected' : ''; ?>>Psychological horror</option>
                         </select>
+
                     </div>
+
 
                     <div class="mb-3">
                         <label class="form-label">Your story</label>
                         <textarea
                             name="content"
                             class="form-control"
-                            placeholder="You can start with when, where, who was there, and what happened..."><?php echo htmlspecialchars($_POST['content'] ?? ''); ?></textarea>
+                            placeholder="You can start with when, where, who was there, and what happened..."
+                            style="min-height:220px; max-height:220px; resize:none;"><?php echo htmlspecialchars($_POST['content'] ?? ''); ?>
+                                                                                        
+                        </textarea>
+
                         <div class="small-hint mt-1">
                             No HTML needed. Just write. You can always edit later.
                         </div>

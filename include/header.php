@@ -12,7 +12,7 @@ $userAvatar = $_SESSION['user_avatar'] ?? 'https://i.pravatar.cc/40';
         <div class="container-fluid">
             <!-- Brand -->
             <a class="navbar-brand d-flex align-items-center" href="index.php">
-                <span class="brand-icon me-2">B</span>
+                <span class="brand-icon me-2">Silent Evidence</span>
                 <span class="brand-text">Silent Evidence</span>
             </a>
             <!-- Mobile toggler -->

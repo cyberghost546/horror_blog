@@ -12,17 +12,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password   = $_POST['password'] ?? '';
     $password2  = $_POST['password_confirm'] ?? '';
 
-    // Build username and display name
     $displayName = trim($firstName . ' ' . $lastName);
     $username    = strtolower(preg_replace('/\s+/', '', $displayName));
 
-    // Validation
     if ($firstName === '' || $lastName === '' || $email === '' || $password === '' || $password2 === '') {
         $errors[] = 'All fields are required';
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Email is not valid';
+        $errors[] = 'Invalid email';
     }
 
     if (strlen($password) < 6) {
@@ -33,297 +31,204 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Passwords do not match';
     }
 
-    // Only insert when there are no errors
     if (!$errors) {
 
-        // Check if email already exists
-        $stmt = $pdo->prepare('SELECT id FROM users WHERE email = :e');
-        $stmt->execute([':e' => $email]);
+        $check = $pdo->prepare('SELECT id FROM users WHERE email = :e LIMIT 1');
+        $check->execute([':e' => $email]);
 
-        if ($stmt->fetch()) {
-
-            $errors[] = 'Email is already registered';
-
+        if ($check->fetch()) {
+            $errors[] = 'Email already registered';
         } else {
-
-            // Hash password
             $hash = password_hash($password, PASSWORD_DEFAULT);
 
-            // Insert user
             $stmt = $pdo->prepare(
                 'INSERT INTO users (username, email, password_hash, display_name, role)
-                 VALUES (:u, :e, :p, :d, :r)'
+                 VALUES (:u, :e, :p, :d, "user")'
             );
 
             $stmt->execute([
                 ':u' => $username ?: $email,
                 ':e' => $email,
                 ':p' => $hash,
-                ':d' => $displayName ?: $email,
+                ':d' => $displayName ?: $email
             ]);
 
-            // Redirect to login
             header('Location: login.php?registered=1');
             exit;
         }
     }
 }
-
-
 ?>
 <!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <title>Sign up silent_evidence</title>
+    <title>Sign Up | Silent Evidence</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
             background-color: #020617;
-            color: #0f172a;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif
+            font-family: system-ui, sans-serif;
+            
         }
 
-        .auth-wrapper {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
-
-        .auth-card {
+        .card-modern {
             width: 100%;
-            max-width: 420px;
-            background-color: #ffffff;
-            border-radius: 18px;
-            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.45);
-            overflow: hidden
+            max-width: 430px;
+            margin: auto;
+            background-color: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 0 25px rgba(246, 0, 0, 0.25);
         }
 
-        .auth-card-topbar {
-            height: 6px;
-            background: #f60000;
-        }
-
-        .auth-card-body {
-            padding: 28px 28px 22px 28px
-        }
-
-        .auth-title {
-            font-size: 1.25rem;
-            font-weight: 600;
+        .card-modern h2 {
+            color: #f60000;
+            font-size: 1.6rem;
+            font-weight: 700;
             text-align: center;
-            margin-bottom: 4px;
-            color: #0f172a;
         }
 
-        .auth-subtitle {
+        .label-text {
             font-size: 0.85rem;
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 18px;
-        }
-
-        .form-label {
-            font-size: 0.8rem;
-            color: #0f172a;
-            margin-bottom: 4px;
+            color: #eaeaeaff;
         }
 
         .form-control {
-            font-size: 0.85rem;
-            padding: 0.55rem 0.7rem;
-            border-radius: 10px;
+            background-color: #1e293b;
+            border-color: #334155;
+             color: #ffffff !important;
         }
+
 
         .form-control:focus {
-            box-shadow: 0 0 0 2px rgba(246, 0, 0, 0.18);
+            background-color: #1e293b;
             border-color: #f60000;
+            box-shadow: 0 0 0 2px rgba(246, 0, 0, 0.3);
         }
 
-        .btn-signup {
-            background-color: #1f2937;
-            color: #ffffff;
-            border-radius: 999px;
-            font-size: 0.9rem;
-            padding: 0.6rem;
-            width: 100%
-        }
-
-        .btn-signup:hover {
-            background-color: #111827;
-            color: #ffffff;
-        }
-
-        .auth-footer-text {
-            font-size: 0.8rem;
-            text-align: center;
-            color: #6b7280;
-            margin-top: 10px;
-        }
-
-        .auth-footer-text a {
+        .btn-red {
+            background-color: #f60000;
             color: #0f172a;
-            font-weight: 500;
-            text-decoration: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 999px;
+            font-weight: 600;
         }
 
-        .auth-footer-text a:hover {
-            text-decoration: underline;
+        .btn-red:hover {
+            background-color: #ca0000;
         }
 
         .divider {
-            display: flex;
-            align-items: center;
             text-align: center;
-            margin: 16px 0 10px 0
-        }
-
-        .divider::before,
-        .divider::after {
-            content: "";
-            flex: 1;
-            border-bottom: 1px solid #e5e7eb;
+            color: #64748b;
+            margin: 18px 0;
         }
 
         .divider span {
-            font-size: 0.75rem;
-            color: #9ca3af;
-            padding: 0 8px;
+            padding: 0 12px;
+            background-color: #0f172a;
         }
 
-        .btn-google {
-            font-size: 0.85rem;
-            border-radius: 999px;
-            border-color: #e5e7eb;
-            background-color: #ffffff;
+        .google-btn {
             width: 100%;
-            padding: 0.55rem;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 999px;
         }
 
-        .btn-google:hover {
-            background-color: #f9fafb;
+        .google-btn:hover {
+            background-color: #293548;
         }
 
-        .google-icon {
-            width: 18px;
-            height: 18px;
-            margin-right: 6px;
+        .small-text {
+            text-align: center;
+            color: #94a3b8;
+            margin-top: 12px;
         }
 
-        .alert-small {
-            font-size: 0.8rem;
-            padding: 0.4rem 0.6rem;
-            border-radius: 10px;
-            margin-bottom: 10px
+        .small-text a {
+            color: #f60000;
+            text-decoration: none;
+        }
+
+        .small-text a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 
 <body>
-    <?php
-    include 'header.php'
-    ?>
-    <div class="auth-wrapper">
-        <div class="auth-card">
-            <div class="auth-card-topbar"></div>
-            <div class="auth-card-body">
-                <h1 class="auth-title">Sign Up</h1>
-                <p class="auth-subtitle">
-                    Let’s get you started with your horror account
-                </p>
+    <div class="mt-5 pt-4">
+        <div class="card-modern">
 
-                <?php if ($errors): ?>
-                    <div class="alert alert-danger alert-small">
-                        <?php foreach ($errors as $err) echo '<div>' . htmlspecialchars($err) . '</div>' ?>
+            <h2>Create Your Account</h2>
+            <p class="text-center text-secondary mb-3">Join Silent Evidence and share your horror stories</p>
+
+            <?php if ($errors): ?>
+                <div class="alert alert-danger">
+                    <?php foreach ($errors as $e) echo "<div>" . htmlspecialchars($e) . "</div>"; ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="post">
+
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="label-text">First Name</label>
+                        <input type="text" name="first_name" class="form-control"
+                            value="<?php echo htmlspecialchars($_POST['first_name'] ?? '') ?>">
                     </div>
-                <?php endif ?>
-
-                <form method="post" novalidate>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label class="form-label">First name</label>
-                                <input
-                                    type="text"
-                                    name="first_name"
-                                    class="form-control"
-                                    value="<?php echo htmlspecialchars($_POST['first_name'] ?? '') ?>"
-                                    required>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label class="form-label">Last name</label>
-                                <input
-                                    type="text"
-                                    name="last_name"
-                                    class="form-control"
-                                    value="<?php echo htmlspecialchars($_POST['last_name'] ?? '') ?>"
-                                    required>
-                            </div>
-                        </div>
+                    <div class="col-6">
+                        <label class="label-text">Last Name</label>
+                        <input type="text" name="last_name" class="form-control"
+                            value="<?php echo htmlspecialchars($_POST['last_name'] ?? '') ?>">
                     </div>
-
-                    <div class="mb-2">
-                        <label class="form-label">Email</label>
-                        <input
-                            type="email"
-                            name="email"
-                            class="form-control"
-                            value="<?php echo htmlspecialchars($_POST['email'] ?? '') ?>"
-                            required>
-                    </div>
-
-                    <div class="mb-2">
-                        <label class="form-label">Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            class="form-control"
-                            required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Confirm password</label>
-                        <input
-                            type="password"
-                            name="password_confirm"
-                            class="form-control"
-                            required>
-                    </div>
-
-                    <button type="submit" class="btn btn-signup">
-                        Sign up
-                    </button>
-                </form>
-
-                <p class="auth-footer-text">
-                    Already have an account
-                    <a href="login.php">Log in</a>
-                </p>
-
-                <div class="divider">
-                    <span>or</span>
                 </div>
 
-                <button type="button" class="btn btn-google">
-                    <img
-                        src="https://www.svgrepo.com/show/475656/google-color.svg"
-                        class="google-icon"
-                        alt="G">
-                    Sign up with Google
-                </button>
+                <div class="mt-3">
+                    <label class="label-text">Email</label>
+                    <input type="email" name="email" class="form-control"
+                        value="<?php echo htmlspecialchars($_POST['email'] ?? '') ?>">
+                </div>
 
-                <p class="auth-footer-text mt-3">
-                    By signing up you agree to our terms and privacy policy
-                </p>
-            </div>
+                <div class="mt-3">
+                    <label class="label-text">Password</label>
+                    <input type="password" name="password" class="form-control">
+                </div>
+
+                <div class="mt-3">
+                    <label class="label-text">Confirm Password</label>
+                    <input type="password" name="password_confirm" class="form-control">
+                </div>
+
+                <button class="btn-red mt-4">Sign Up</button>
+
+            </form>
+
+            <div class="divider"><span>or</span></div>
+
+            <button class="google-btn">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="18" class="me-2">
+                Continue with Google
+            </button>
+
+            <p class="small-text">
+                Already have an account?
+                <a href="login.php">Log in</a>
+            </p>
+
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
