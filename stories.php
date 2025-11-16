@@ -1,72 +1,62 @@
-<?php
-session_start();
+<?php session_start();
 require 'include/db.php';
-
-// read category filter from URL, like ?category=true
+// read category filter from URL, like ?category=true 
 $categoryKey = $_GET['category'] ?? null;
-
-// ALL categories including your new ones
+// ALL categories including your new ones 
 $categoryMap = [
-    'true'          => 'True stories',
-    'paranormal'    => 'Paranormal',
-    'urban'         => 'Urban legends',
-    'short'         => 'Short nightmares',
-    'haunted'       => 'Haunted places',
-    'ghosts'        => 'Ghost encounters',
-    'missing'       => 'Missing persons',
-    'crime'         => 'Crime & mystery',
-    'sleep'         => 'Sleep paralysis',
-    'forest'        => 'Forest horror',
-    'night'         => 'Night shift stories',
-    'calls'         => 'Strange phone calls',
-    'creatures'     => 'Creature sightings',
-    'abandoned'     => 'Abandoned places',
+    'true' => 'True stories',
+    'paranormal' => 'Paranormal',
+    'urban' => 'Urban legends',
+    'short' => 'Short nightmares',
+    'haunted' => 'Haunted places',
+    'ghosts' => 'Ghost encounters',
+    'missing' => 'Missing persons',
+    'crime' => 'Crime & mystery',
+    'sleep' => 'Sleep paralysis',
+    'forest' => 'Forest horror',
+    'night' => 'Night shift stories',
+    'calls' => 'Strange phone calls',
+    'creatures' => 'Creature sightings',
+    'abandoned' => 'Abandoned places',
     'psychological' => 'Psychological horror'
 ];
 
-$where  = 's.is_published = 1';
+$where = 's.is_published = 1';
+
 $params = [];
 
-// if a valid category is selected, filter on it
+// if a valid category is selected, filter on it 
 if ($categoryKey && isset($categoryMap[$categoryKey])) {
     $where .= ' AND s.category = :cat';
     $params[':cat'] = $categoryKey;
     $pageHeading = $categoryMap[$categoryKey];
 } else {
-    $categoryKey  = null;
-    $pageHeading  = 'All stories';
+    $categoryKey = null;
+    $pageHeading = 'All stories';
 }
 
-// load stories
-$sql = "
-    SELECT s.id, s.title, s.category, s.content, s.created_at, s.views, s.likes,
-           u.display_name, u.username, u.avatar
-      FROM stories s
-      JOIN users u ON u.id = s.user_id
-     WHERE $where
-  ORDER BY s.created_at DESC
-";
-
+// load stories 
+$sql = " SELECT s.id, s.title, s.category, s.content, s.created_at, s.views, s.likes, s.image_path, u.display_name, u.username, u.avatar FROM stories s JOIN users u ON u.id = s.user_id WHERE $where ORDER BY s.created_at DESC ";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $stories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// NICE LABELS for the small category tag
+// NICE LABELS for the small category tag 
 $categoryLabelMap = [
-    'true'          => 'TRUE STORY',
-    'paranormal'    => 'PARANORMAL',
-    'urban'         => 'URBAN LEGEND',
-    'short'         => 'SHORT NIGHTMARE',
-    'haunted'       => 'HAUNTED',
-    'ghosts'        => 'GHOST ENCOUNTER',
-    'missing'       => 'MISSING PERSON',
-    'crime'         => 'CRIME MYSTERY',
-    'sleep'         => 'SLEEP PARALYSIS',
-    'forest'        => 'FOREST HORROR',
-    'night'         => 'NIGHT SHIFT',
-    'calls'         => 'STRANGE CALL',
-    'creatures'     => 'CREATURE SIGHTING',
-    'abandoned'     => 'ABANDONED',
+    'true' => 'TRUE STORY',
+    'paranormal' => 'PARANORMAL',
+    'urban' => 'URBAN LEGEND',
+    'short' => 'SHORT NIGHTMARE',
+    'haunted' => 'HAUNTED',
+    'ghosts' => 'GHOST ENCOUNTER',
+    'missing' => 'MISSING PERSON',
+    'crime' => 'CRIME MYSTERY',
+    'sleep' => 'SLEEP PARALYSIS',
+    'forest' => 'FOREST HORROR',
+    'night' => 'NIGHT SHIFT',
+    'calls' => 'STRANGE CALL',
+    'creatures' => 'CREATURE SIGHTING',
+    'abandoned' => 'ABANDONED',
     'psychological' => 'PSYCHOLOGICAL'
 ];
 ?>
@@ -78,7 +68,6 @@ $categoryLabelMap = [
     <title>Stories | silent_evidence</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <style>
         body {
             background-color: #020617;
@@ -106,6 +95,19 @@ $categoryLabelMap = [
             transform: translateY(-3px);
             border-color: #f60000;
             box-shadow: 0 0 15px rgba(246, 0, 0, 0.25);
+        }
+
+        .story-thumb {
+            height: 160px;
+            overflow: hidden;
+            background-color: #020617;
+        }
+
+        .story-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .card-body {
@@ -172,12 +174,10 @@ $categoryLabelMap = [
             margin: 0;
         }
     </style>
-
 </head>
 
 <body>
     <?php include 'include/header.php'; ?>
-
     <div class="page-wrapper">
 
         <h2 class="mb-3">Categories</h2>
@@ -220,8 +220,6 @@ $categoryLabelMap = [
             </select>
         </div>
 
-
-
         <hr class="border-secondary my-4">
 
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -252,11 +250,19 @@ $categoryLabelMap = [
 
                     $catSlug  = $story['category'];
                     $catLabel = $categoryLabelMap[$catSlug] ?? strtoupper($catSlug);
+
+                    $thumb = !empty($story['image_path'])
+                        ? $story['image_path']
+                        : 'assets/img/default_story.jpg';
                     ?>
 
                     <div class="col">
                         <a href="story.php?id=<?php echo (int)$story['id']; ?>" class="text-decoration-none">
                             <div class="story-card h-100">
+
+                                <div class="story-thumb">
+                                    <img src="<?php echo htmlspecialchars($thumb); ?>" alt="Story image">
+                                </div>
 
                                 <div class="card-body">
                                     <div class="category-tag mb-1">
@@ -277,7 +283,9 @@ $categoryLabelMap = [
                                         By <?php echo htmlspecialchars($story['display_name'] ?: $story['username']); ?>
                                     </small>
                                     <small class="stat-chip">
-                                        👁 <?php echo (int)$story['views']; ?> • ❤ <?php echo (int)$story['likes']; ?>
+                                        👁 <?php echo (int)$story['views']; ?>
+                                        • ❤ <?php echo (int)$story['likes']; ?>
+                                        • 🔖
                                     </small>
                                 </div>
 
@@ -293,7 +301,6 @@ $categoryLabelMap = [
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 
 </html>

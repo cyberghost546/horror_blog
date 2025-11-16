@@ -268,6 +268,12 @@ $stories = $stmt->fetchAll(); ?>
                                                     View
                                                 </a>
 
+                                                <a
+                                                    href="edit_story.php?id=<?php echo (int)$s['id']; ?>"
+                                                    class="btn btn-outline-silent btn-sm">
+                                                    Edit
+                                                </a>
+
                                                 <form method="post" class="d-inline action-form">
                                                     <input type="hidden" name="story_id" value="<?php echo (int)$s['id']; ?>">
                                                     <input type="hidden" name="action" value="toggle_publish">
@@ -279,7 +285,7 @@ $stories = $stmt->fetchAll(); ?>
                                                 <form
                                                     method="post"
                                                     class="d-inline action-form"
-                                                    onsubmit="return confirm('Delete this story');">
+                                                    onsubmit="return confirm('Delete this story?');">
                                                     <input type="hidden" name="story_id" value="<?php echo (int)$s['id']; ?>">
                                                     <input type="hidden" name="action" value="delete">
                                                     <button type="submit" class="btn btn-outline-danger btn-sm">
@@ -289,6 +295,7 @@ $stories = $stmt->fetchAll(); ?>
 
                                             </div>
                                         </td>
+
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

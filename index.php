@@ -419,33 +419,44 @@ function se_category_label(string $cat): string
             </div>
 
             <!-- Category Cards -->
-             <div class="row g-3">
+            <div class="row g-3 mb-3">
+
                 <div class="col-md-3 col-sm-6">
-                    <a href="stories.php?cat=true" class="category-card d-block h-100 p-3">
-                        <h3 class="h6 text-light mb-1">True stories</h3>
-                        <p class="small text-secondary mb-0">Real experiences users claim actually happened.</p>
+                    <a href="category_stories.php?cat=true" class="category-card d-block p-4 rounded-4">
+                        <h3 class="text-danger fw-bold small mb-2" style="letter-spacing:0.15em;">TRUE</h3>
+                        <h4 class="text-light fs-5 mb-1">True stories</h4>
+                        <p class="text-secondary small mb-0">Real experiences users claim actually happened.</p>
                     </a>
                 </div>
+
                 <div class="col-md-3 col-sm-6">
-                    <a href="stories.php?cat=paranormal" class="category-card d-block h-100 p-3">
-                        <h3 class="h6 text-light mb-1">Paranormal</h3>
-                        <p class="small text-secondary mb-0">Ghosts, spirits, haunted houses, cursed objects.</p>
+                    <a href="category_stories.php?cat=paranormal" class="category-card d-block p-4 rounded-4">
+                        <h3 class="text-danger fw-bold small mb-2" style="letter-spacing:0.15em;">PARANORMAL</h3>
+                        <h4 class="text-light fs-5 mb-1">Paranormal</h4>
+                        <p class="text-secondary small mb-0">Ghosts, spirits, haunted houses, cursed objects.</p>
                     </a>
                 </div>
+
                 <div class="col-md-3 col-sm-6">
-                    <a href="stories.php?cat=urban" class="category-card d-block h-100 p-3">
-                        <h3 class="h6 text-light mb-1">Strange phone calls</h3>
-                        <p class="small text-secondary mb-0"></p>
+                    <a href="category_stories.php?cat=urban" class="category-card d-block p-4 rounded-4">
+                        <h3 class="text-danger fw-bold small mb-2" style="letter-spacing:0.15em;">URBAN</h3>
+                        <h4 class="text-light fs-5 mb-1">Urban legends</h4>
+                        <p class="text-secondary small mb-0">Stories that spread online and feel too real.</p>
                     </a>
                 </div>
+
                 <div class="col-md-3 col-sm-6">
-                    <a href="stories.php?cat=short" class="category-card d-block h-100 p-3">
-                        <h3 class="h6 text-light mb-1">Short nightmares</h3>
-                        <p class="small text-secondary mb-0">Quick reads that hit fast.</p>
+                    <a href="category_stories.php?cat=short" class="category-card d-block p-4 rounded-4">
+                        <h3 class="text-danger fw-bold small mb-2" style="letter-spacing:0.15em;">SHORT</h3>
+                        <h4 class="text-light fs-5 mb-1">Short nightmares</h4>
+                        <p class="text-secondary small mb-0">Quick reads that hit fast.</p>
                     </a>
                 </div>
+
             </div>
+
             <hr>
+
             <div class="row g-3">
 
                 <div class="col-md-3 col-sm-6">
@@ -465,14 +476,6 @@ function se_category_label(string $cat): string
                 </div>
 
                 <div class="col-md-3 col-sm-6">
-                    <a href="category_stories.php?cat=urban" class="category-card d-block p-4 rounded-4">
-                        <h3 class="text-danger fw-bold small mb-2" style="letter-spacing:0.15em;">URBAN</h3>
-                        <h4 class="text-light fs-5 mb-1">Urban legends</h4>
-                        <p class="text-secondary small mb-0">Stories that spread online and feel real.</p>
-                    </a>
-                </div>
-
-                <div class="col-md-3 col-sm-6">
                     <a href="category_stories.php?cat=missing" class="category-card d-block p-4 rounded-4">
                         <h3 class="text-danger fw-bold small mb-2" style="letter-spacing:0.15em;">MISSING</h3>
                         <h4 class="text-light fs-5 mb-1">Missing persons</h4>
@@ -480,7 +483,16 @@ function se_category_label(string $cat): string
                     </a>
                 </div>
 
+                <div class="col-md-3 col-sm-6">
+                    <a href="category_stories.php?cat=psychological" class="category-card d-block p-4 rounded-4">
+                        <h3 class="text-danger fw-bold small mb-2" style="letter-spacing:0.15em;">PSYCHO</h3>
+                        <h4 class="text-light fs-5 mb-1">Psychological horror</h4>
+                        <p class="text-secondary small mb-0">Stories that mess with your head.</p>
+                    </a>
+                </div>
+
             </div>
+
 
             <hr>
 
