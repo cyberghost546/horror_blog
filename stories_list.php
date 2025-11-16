@@ -1,5 +1,4 @@
-<?php
-session_start();
+<?php session_start();
 require 'include/db.php';
 if (empty($_SESSION['user_id']) || empty($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: index.php');
@@ -22,9 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['story_id'], $_POST['a
     }
     header('Location: stories_list.php?updated=1');
     exit;
-} /* SEARCH + FILTER */
+} /* SEARCH + FILTER + SORT */
 $search = trim($_GET['q'] ?? '');
 $filter = $_GET['filter'] ?? 'all';
+$sort = $_GET['sort'] ?? '';
 $params = [];
 $sql = 'SELECT s.id, s.title, s.category, s.is_published, s.is_featured, s.views, s.likes, s.created_at, u.display_name, u.username FROM stories s JOIN users u ON u.id = s.user_id';
 $clauses = [];
@@ -41,11 +41,40 @@ if ($filter === 'published') {
 }
 if ($clauses) {
     $sql .= ' WHERE ' . implode(' AND ', $clauses);
+} /* SORTING */
+if ($sort === 'title_az') {
+    $sql .= ' ORDER BY s.title ASC';
+} elseif ($sort === 'title_za') {
+    $sql .= ' ORDER BY s.title DESC';
+} elseif ($sort === 'id_asc') {
+    $sql .= ' ORDER BY s.id ASC';
+} elseif ($sort === 'id_desc') {
+    $sql .= ' ORDER BY s.id DESC';
+} else {
+    $sql .= ' ORDER BY s.created_at DESC';
 }
-$sql .= ' ORDER BY s.created_at DESC';
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
-$stories = $stmt->fetchAll(); ?>
+$stories = $stmt->fetchAll(); /* BUILD SORT URLS THAT KEEP SEARCH + FILTER */
+$baseParams = [];
+if ($search !== '') {
+    $baseParams['q'] = $search;
+}
+if ($filter !== 'all') {
+    $baseParams['filter'] = $filter;
+}
+$azParams = $baseParams;
+$azParams['sort'] = 'title_az';
+$zaParams = $baseParams;
+$zaParams['sort'] = 'title_za';
+$idAscParams = $baseParams;
+$idAscParams['sort'] = 'id_asc';
+$idDescParams = $baseParams;
+$idDescParams['sort'] = 'id_desc';
+$sortUrlAz = 'stories_list.php?' . http_build_query($azParams);
+$sortUrlZa = 'stories_list.php?' . http_build_query($zaParams);
+$sortUrlIdAsc = 'stories_list.php?' . http_build_query($idAscParams);
+$sortUrlIdDesc = 'stories_list.php?' . http_build_query($idDescParams); ?>
 <!doctype html>
 <html lang="en">
 
@@ -206,7 +235,6 @@ $stories = $stmt->fetchAll(); ?>
             background-color: #111827;
             border-color: #6b7280;
             color: #ffffff;
-
         }
 
         .action-form button {
@@ -214,12 +242,10 @@ $stories = $stmt->fetchAll(); ?>
             padding: 3px 8px;
         }
     </style>
+
 </head>
 
-<body>
-    <?php include 'include/header.php'; ?>
-    <div class="layout-wrapper">
-        <!-- SIDEBAR -->
+<body> <?php include 'include/header.php'; ?> <div class="layout-wrapper"> <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-title">silent_evidence</div>
 
@@ -247,24 +273,45 @@ $stories = $stmt->fetchAll(); ?>
         <!-- MAIN -->
         <div class="main-area">
 
-            <div class="main-header d-flex justify-content-between align-items-center">
+            <div class="main-header d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h1 class="page-title mb-0">Stories</h1>
 
-                <form method="get" class="d-flex gap-2 filter-form">
-                    <input
-                        type="text"
-                        name="q"
-                        class="form-control form-control-sm"
-                        placeholder="Search title or author..."
-                        value="<?php echo htmlspecialchars($search); ?>">
-                    <select name="filter" class="form-select form-select-sm" style="max-width: 150px">
-                        <option value="all" <?php if ($filter === 'all') echo 'selected'; ?>>All</option>
-                        <option value="published" <?php if ($filter === 'published') echo 'selected'; ?>>Published</option>
-                        <option value="drafts" <?php if ($filter === 'drafts') echo 'selected'; ?>>Drafts</option>
-                        <option value="featured" <?php if ($filter === 'featured') echo 'selected'; ?>>Featured</option>
-                    </select>
-                    <button class="btn btn-outline-silent btn-sm" type="submit">Apply</button>
-                </form>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <form method="get" class="d-flex gap-2 filter-form">
+                        <input
+                            type="text"
+                            name="q"
+                            class="form-control form-control-sm"
+                            placeholder="Search title or author..."
+                            value="<?php echo htmlspecialchars($search); ?>">
+
+                        <select name="filter" class="form-select form-select-sm" style="max-width: 150px">
+                            <option value="all" <?php if ($filter === 'all') echo 'selected'; ?>>All</option>
+                            <option value="published" <?php if ($filter === 'published') echo 'selected'; ?>>Published</option>
+                            <option value="drafts" <?php if ($filter === 'drafts') echo 'selected'; ?>>Drafts</option>
+                            <option value="featured" <?php if ($filter === 'featured') echo 'selected'; ?>>Featured</option>
+                        </select>
+
+                        <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort); ?>">
+
+                        <button class="btn btn-outline-silent btn-sm" type="submit">Apply</button>
+                    </form>
+
+                    <div class="d-flex flex-wrap gap-1">
+                        <a href="<?php echo htmlspecialchars($sortUrlAz); ?>" class="btn btn-outline-silent btn-sm">
+                            Title A to Z
+                        </a>
+                        <a href="<?php echo htmlspecialchars($sortUrlZa); ?>" class="btn btn-outline-silent btn-sm">
+                            Title Z to A
+                        </a>
+                        <a href="<?php echo htmlspecialchars($sortUrlIdAsc); ?>" class="btn btn-outline-silent btn-sm">
+                            ID 1 to 10
+                        </a>
+                        <a href="<?php echo htmlspecialchars($sortUrlIdDesc); ?>" class="btn btn-outline-silent btn-sm">
+                            ID 10 to 1
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <div class="main-content">
@@ -312,21 +359,22 @@ $stories = $stmt->fetchAll(); ?>
                                                 </td>
                                                 <td>
                                                     <?php
-                                                    $cat = $s['category'];
+                                                    $cat   = $s['category'];
                                                     $label = 'Other';
-                                                    $cls = 'badge-cat';
+                                                    $cls   = 'badge-cat';
+
                                                     if ($cat === 'true') {
                                                         $label = 'True story';
-                                                        $cls .= ' badge-cat-true';
+                                                        $cls  .= ' badge-cat-true';
                                                     } elseif ($cat === 'paranormal') {
                                                         $label = 'Paranormal';
-                                                        $cls .= ' badge-cat-paranormal';
+                                                        $cls  .= ' badge-cat-paranormal';
                                                     } elseif ($cat === 'urban') {
                                                         $label = 'Urban legend';
-                                                        $cls .= ' badge-cat-urban';
+                                                        $cls  .= ' badge-cat-urban';
                                                     } elseif ($cat === 'short') {
                                                         $label = 'Short nightmare';
-                                                        $cls .= ' badge-cat-short';
+                                                        $cls  .= ' badge-cat-short';
                                                     }
                                                     ?>
                                                     <span class="<?php echo $cls; ?>">
@@ -395,6 +443,7 @@ $stories = $stmt->fetchAll(); ?>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>
